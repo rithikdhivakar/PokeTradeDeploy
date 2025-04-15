@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/poketradeapp.iml" filepath="$PROJECT_DIR$/.idea/poketradeapp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/GTPokeTrade.iml" filepath="$PROJECT_DIR$/.idea/GTPokeTrade.iml" />
     </modules>
   </component>
 </project>
