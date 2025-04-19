@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>{{ selected_user.username }}’s Collection</h2>
+
+  {% if cards %}
+    <div class="card-grid">
+      {% for item in cards %}
+        <div class="card">
+          <img src="{{ item.card.image_url }}" alt="{{ item.card.name }}" width="120"><br>
+          <strong>{{ item.card.name }}</strong><br>
+          HP: {{ item.card.hp }}<br>
+          Type: {{ item.card.type }}<br>
+          Rarity: {{ item.card.rarity }}<br>
+          Count: {{ item.count }}
+        </div>
+      {% endfor %}
+    </div>
+    <div style="margin-top: 20px;">
+<a href="{% url 'send_trade' selected_user.id %}">
+        <button>Propose a Trade</button>
+      </a>
+    </div>
+  {% else %}
+    <p>This user has no cards.</p>
+  {% endif %}
+{% endblock %}
+
