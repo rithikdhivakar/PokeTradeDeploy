@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Marketplace Listings</h2>
+  <ul class="list-group">
+    {% for listing in listings %}
+      <li class="list-group-item">
+        <strong>{{ listing.user_card.card.name }}</strong>
+        - Owned by {{ listing.user_card.user.username }}
+        - ${{ listing.price }}
+      </li>
+    {% empty %}
+      <li class="list-group-item">No listings available.</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

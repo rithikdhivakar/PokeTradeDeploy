@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>List {{ card.name }} for Sale</h2>
+
+<p>You currently own {{ remaining|add:listed_count }} of this card.</p>
+<p>You have <strong>{{ remaining }}</strong> unlisted cards available.</p>
+
+{% if remaining <= 0 %}
+    <p style="color: red;">❌ You’ve already listed all your cards of this type.</p>
+{% else %}
+    <form method="post">
+        {% csrf_token %}
+        <label for="price">Set your price (₹):</label>
+        <input type="number" name="price" required min="1" max="999">
+        <button type="submit">List for Sale</button>
+    </form>
+{% endif %}
+{% endblock %}
+

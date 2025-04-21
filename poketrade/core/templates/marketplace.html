@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Marketplace</h2>
+
+  <form method="get" style="margin-bottom: 20px;">
+    <label for="type">Type:</label>
+    <select name="type">
+      <option value="">All</option>
+      {% for t in types %}
+        <option value="{{ t }}" {% if t == request.GET.type %}selected{% endif %}>{{ t }}</option>
+      {% endfor %}
+    </select>
+
+    <label for="rarity">Rarity:</label>
+    <select name="rarity">
+      <option value="">All</option>
+      {% for r in rarities %}
+        <option value="{{ r }}" {% if r == request.GET.rarity %}selected{% endif %}>{{ r }}</option>
+      {% endfor %}
+    </select>
+
+    <button type="submit">Filter</button>
+  </form>
+
+  {% if listings %}
+    <div class="card-grid">
+      {% for listing in listings %}
+        <div class="card">
+          <img src="{{ listing.card.image_url }}" width="120"><br>
+          <strong>{{ listing.card.name }}</strong><br>
+          Type: {{ listing.card.type }}<br>
+          Rarity: {{ listing.card.rarity }}<br>
+          HP: {{ listing.card.hp }}<br>
+          Price: ₹{{ listing.price }}<br>
+          <form method="post" action="{% url 'buy_card' listing.id %}">
+            {% csrf_token %}
+            <button type="submit">Buy</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No cards currently listed.</p>
+  {% endif %}
+{% endblock %}
+
