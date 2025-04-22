@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>My Collection</h2>
+
+  {% if cards %}
+    <div class="card-grid">
+      {% for item in cards %}
+        <div class="card">
+          <img src="{{ item.card.image_url }}" alt="{{ item.card.name }}" width="120"><br>
+          <strong>{{ item.card.name }}</strong><br>
+          HP: {{ item.card.hp }}<br>
+          Type: {{ item.card.type }}<br>
+          Rarity: {{ item.card.rarity }}<br>
+          Count: {{ item.count }}
+
+          {% if listed_cards.item.card.id %}
+            <div style="color: orange; margin-top: 5px;">🟡 On Sale</div>
+          {% else %}
+            <br>
+            <a href="{% url 'list_for_sale' item.card.id %}">
+              <button>Sell</button>
+            </a>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>You don't have any cards yet!</p>
+  {% endif %}
+{% endblock %}
+
