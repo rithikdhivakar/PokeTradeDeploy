@@ -75,10 +75,10 @@ class UserAchievement(models.Model):
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    balance = models.IntegerField(default=1000)  # ₹1000 initial wallet
+    balance = models.IntegerField(default=1000)  # $1000 initial wallet
 
     def __str__(self):
-        return f"{self.user.username} - ₹{self.balance}"
+        return f"{self.user.username} - ${self.balance}"
 
 # Auto-create profile when user is registered
 @receiver(post_save, sender=User)

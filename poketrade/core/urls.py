@@ -13,8 +13,11 @@ urlpatterns = [
     path('trade/requests/', views.trade_requests, name='trade_requests'),
     path('trade/accept/<int:trade_id>/', views.accept_trade, name='accept_trade'),
     path('trade/reject/<int:trade_id>/', views.reject_trade, name='reject_trade'),
-    path('', views.home_redirect),  # default homepage
+    # path('', views.home_redirect),  # default homepage
+    path('', views.homepage, name='home'),
+    path('about/', views.about, name='about'),
     path('sell/<int:card_id>/', views.list_for_sale, name='list_for_sale'),
+    path('card/<int:card_id>/details/', views.card_details, name='card_details'),
     path('buy/<int:listing_id>/', views.buy_card, name='buy_card'),
     path('login/', LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),

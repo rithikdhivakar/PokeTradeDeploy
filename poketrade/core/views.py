@@ -8,7 +8,60 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
 from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement
-import random
+import random, requests
+
+def homepage(request):
+    return render(request, 'home.html')
+
+def about(request):
+    return render(request, 'about.html')
+
+def card_details(request, card_id):
+    card = get_object_or_404(PokemonCard, id=card_id)
+    poke_name = card.name.lower().replace(" ", "-")
+
+    poke_url = f"https://pokeapi.co/api/v2/pokemon/{poke_name}"
+    species_url = f"https://pokeapi.co/api/v2/pokemon-species/{poke_name}"
+
+    print("PokeAPI URL (pokemon):", poke_url)
+    print("PokeAPI URL (species):", species_url)
+
+    try:
+        poke_response = requests.get(poke_url)
+        if poke_response.status_code != 200:
+            raise Exception(f"PokeAPI returned {poke_response.status_code}")
+        poke_data = poke_response.json()
+
+        species_response = requests.get(species_url)
+        if species_response.status_code != 200:
+            raise Exception(f"PokeAPI species returned {species_response.status_code}")
+        species_data = species_response.json()
+
+    except Exception as e:
+        return render(request, 'card_detail.html', {
+            'card': card,
+            'error': f"PokeAPI error: {str(e)}"
+        })
+
+    # Extract desired data from the JSON responses
+    height = poke_data.get('height')
+    weight = poke_data.get('weight')
+    abilities = [a['ability']['name'] for a in poke_data.get('abilities', [])]
+
+    flavor_text_entries = species_data.get('flavor_text_entries', [])
+    english_flavor_text = next(
+        (entry['flavor_text'] for entry in flavor_text_entries if entry['language']['name'] == 'en'),
+        "No description available."
+    )
+
+    return render(request, 'card_detail.html', {
+        'card': card,
+        'height': height,
+        'weight': weight,
+        'abilities': abilities,
+        'flavor_text': english_flavor_text,
+    })
+
 
 def register(request):
     if request.method == 'POST':
@@ -30,6 +83,7 @@ def home_redirect(request):
 def assign_random_cards(user):
     import requests
     from .models import PokemonCard, UserCollection
+    import random
 
     url = "https://api.pokemontcg.io/v2/cards"
     params = {"pageSize": 50}  # More to choose from
@@ -39,8 +93,14 @@ def assign_random_cards(user):
     cards = data["data"]
     random.shuffle(cards)
 
-    for item in cards[:5]:
+    count = 0
+    for item in cards:
         name = item.get("name", "Unknown")
+
+        # Skip cards with spaces in name (PokeAPI limitation)
+        if " " in name:
+            continue
+
         hp = int(item.get("hp", "0")) if item.get("hp", "0").isdigit() else 0
         types = item.get("types", [])
         type_ = types[0] if types else "Unknown"
@@ -60,6 +120,10 @@ def assign_random_cards(user):
         if not created:
             user_card.count += 1
         user_card.save()
+
+        count += 1
+        if count >= 5:
+            break
 
 @login_required
 def my_collection(request):
@@ -281,6 +345,20 @@ def accept_trade(request, trade_id):
 
     for achievement in eligible:
         UserAchievement.objects.create(user=from_user, achievement=achievement)
+
+    # ✅ Also award achievements to the receiver (to_user)
+    to_user = trade.to_user
+
+    to_user_trade_count = TradeRequest.objects.filter(
+        Q(from_user=to_user) | Q(to_user=to_user),
+        status='accepted'
+    ).count()
+
+    earned_to_user = UserAchievement.objects.filter(user=to_user).values_list('achievement_id', flat=True)
+    eligible_to_user = Achievement.objects.filter(required_trades__lte=to_user_trade_count).exclude(id__in=earned_to_user)
+
+    for achievement in eligible_to_user:
+        UserAchievement.objects.create(user=to_user, achievement=achievement)
 
     return redirect('trade_requests')
 

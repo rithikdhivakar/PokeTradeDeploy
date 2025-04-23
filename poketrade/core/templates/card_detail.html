@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>{{ card.name }} – Details</h2>
+{% if error %}
+  <p style="color:red">{{ error }}</p>
+{% else %}
+  <ul>
+    <li><strong>Base Experience:</strong> {{ base_experience }}</li>
+    <li><strong>Height:</strong> {{ height }}</li>
+    <li><strong>Weight:</strong> {{ weight }}</li>
+    <li><strong>Abilities:</strong> {{ abilities|join:", " }}</li>
+    <li><strong>Description:</strong> {{ flavor_text }}</li>
+  </ul>
+{% endif %}
+<a href="{% url 'my_collection' %}">Back to Collection</a>
+{% endblock %}
+

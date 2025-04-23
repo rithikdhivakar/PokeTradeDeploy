@@ -10,7 +10,7 @@
 {% else %}
     <form method="post">
         {% csrf_token %}
-        <label for="price">Set your price (₹):</label>
+        <label for="price">Set your price ($):</label>
         <input type="number" name="price" required min="1" max="999">
         <button type="submit">List for Sale</button>
     </form>

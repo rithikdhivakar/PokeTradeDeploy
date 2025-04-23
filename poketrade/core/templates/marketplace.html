@@ -27,11 +27,13 @@
       {% for listing in listings %}
         <div class="card">
           <img src="{{ listing.card.image_url }}" width="120"><br>
-          <strong>{{ listing.card.name }}</strong><br>
+          <a href="{% url 'card_details' listing.card.id %}">
+            <strong>{{ listing.card.name }}</strong>
+          </a><br>
           Type: {{ listing.card.type }}<br>
           Rarity: {{ listing.card.rarity }}<br>
           HP: {{ listing.card.hp }}<br>
-          Price: ₹{{ listing.price }}<br>
+          Price: ${{ listing.price }}<br>
           <form method="post" action="{% url 'buy_card' listing.id %}">
             {% csrf_token %}
             <button type="submit">Buy</button>

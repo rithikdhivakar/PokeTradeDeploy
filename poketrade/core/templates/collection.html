@@ -11,9 +11,14 @@
           HP: {{ item.card.hp }}<br>
           Type: {{ item.card.type }}<br>
           Rarity: {{ item.card.rarity }}<br>
-          Count: {{ item.count }}
+          Count: {{ item.count }}<br>
 
-          {% if listed_cards.item.card.id %}
+          <!-- View Details button -->
+          <a href="{% url 'card_details' item.card.id %}">
+            <button>View Details</button>
+          </a>
+
+          {% if item.card.id in listed_cards %}
             <div style="color: orange; margin-top: 5px;">🟡 On Sale</div>
           {% else %}
             <br>

@@ -19,36 +19,45 @@
     </style>
 </head>
 <body>
-
 <div style="max-width: 1200px; margin: auto;">
-    <nav style="background-color: #2c3e50; padding: 12px 30px; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; font-family: 'Poppins', sans-serif;">
-        <!-- Left: Logo -->
-        <div style="font-weight: bold; font-size: 18px; margin-bottom: 6px;">PokéTrade</div>
-        {% if user.is_authenticated %}
-        <!-- Middle: Navigation Links -->
-        <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; flex: 1; min-width: 300px;">
-            <a href="{% url 'my_collection' %}" style="color: white;">My Collection</a>
-            <a href="{% url 'marketplace' %}" style="color: white;">Marketplace</a>
-            <a href="{% url 'user_list' %}" style="color: white;">Other Users</a>
-            <a href="{% url 'trade_requests' %}" style="color: white;">Trade Requests</a>
-            <a href="{% url 'my_achievements' %}" style="color: white;">Achievements</a>
-        </div>
+  <nav style="background-color: #2c3e50; padding: 12px 30px; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
 
-        <!-- Right: User Info -->
-        <div style="display: flex; gap: 16px; align-items: center; margin-left: auto;">
-            <span>👋 <strong>{{ user.username }}</strong></span>
-            <span style="background-color: #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: bold;">₹{{ user.userprofile.balance }}</span>
-            <a href="{% url 'logout' %}" style="color: white;">Logout</a>
-        </div>
-        {% endif %}
-    </nav>
+    <!-- Left: Logo -->
+    <a href="/" style="font-weight: bold; font-size: 18px; margin-bottom: 6px; color: white; text-decoration: none;">PokéTrade</a>
 
-    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
-    
-    {% block content %}
-    {% endblock %}
+    {% if user.is_authenticated %}
+      <!-- Middle: Navigation Links -->
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; flex: 1; min-width: 300px;">
+        <a href="{% url 'my_collection' %}" style="color: white;">My Collection</a>
+        <a href="{% url 'marketplace' %}" style="color: white;">Marketplace</a>
+        <a href="{% url 'user_list' %}" style="color: white;">Other Users</a>
+        <a href="{% url 'trade_requests' %}" style="color: white;">Trade Requests</a>
+        <a href="{% url 'my_achievements' %}" style="color: white;">Achievements</a>
+      </div>
+
+      <!-- Right: User Info -->
+      <div style="display: flex; gap: 16px; align-items: center; margin-left: auto;">
+        <span>👋 <strong>{{ user.username }}</strong></span>
+        <span style="background-color: #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: bold;">${{ user.userprofile.balance }}</span>
+        <a href="{% url 'logout' %}" style="color: white;">Logout</a>
+      </div>
+
+    {% else %}
+      <!-- When not logged in -->
+      <div style="display: flex; gap: 24px; margin-left: auto;">
+        <a href="{% url 'login' %}" style="color: white;">Login</a>
+        <a href="{% url 'register' %}" style="color: white;">Register</a>
+        <a href="{% url 'about' %}" style="color: white;">About</a>
+      </div>
+    {% endif %}
+
+  </nav>
+
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
+
+  {% block content %}
+  {% endblock %}
 </div>
-
 </body>
 </html>
 
