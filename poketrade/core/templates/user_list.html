@@ -1,12 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Other PokéTrade Users</h2>
-<ul>
-    {% for user in users %}
-        <li><a href="{% url 'user_collection' user.id %}">{{ user.username }}</a></li>
-    {% empty %}
-        <li>No other users found.</li>
-    {% endfor %}
-</ul>
+
+{% if users %}
+<div style="display: flex; flex-wrap: wrap; gap: 20px;">
+  {% for user in users %}
+    <div style="width: 200px; border: 1px solid #ccc; padding: 12px; text-align: center; border-radius: 8px; box-shadow: 2px 2px 8px #ddd;">
+      <a href="{% url 'user_collection' user.id %}" style="text-decoration: none; color: inherit;">
+        {% if user.userprofile.profile_pic %}
+          <img src="{{ user.userprofile.profile_pic.url }}" alt="{{ user.username }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 8px;">
+        {% else %}
+          <img src="https://www.gravatar.com/avatar/?d=mp" alt="Default" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 8px;">
+        {% endif %}
+        <h4>{{ user.userprofile.display_name|default:user.username }}</h4>
+      </a>
+    </div>
+  {% endfor %}
+</div>
+{% else %}
+  <p>No other users found.</p>
+{% endif %}
 {% endblock %}
 

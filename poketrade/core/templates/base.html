@@ -19,15 +19,14 @@
     </style>
 </head>
 <body>
-<div style="max-width: 1200px; margin: auto;">
-  <nav style="background-color: #2c3e50; padding: 12px 30px; color: white; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-
+  <nav style="background-color: #2c3e50; padding: 12px 30px; color: white; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+    
     <!-- Left: Logo -->
-    <a href="/" style="font-weight: bold; font-size: 18px; margin-bottom: 6px; color: white; text-decoration: none;">PokéTrade</a>
+    <a href="/" style="font-weight: bold; font-size: 18px; color: white; text-decoration: none;">PokéTrade</a>
 
     {% if user.is_authenticated %}
       <!-- Middle: Navigation Links -->
-      <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; flex: 1; min-width: 300px;">
+      <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; flex: 1; margin-left: 30px; min-width: 300px;">
         <a href="{% url 'my_collection' %}" style="color: white;">My Collection</a>
         <a href="{% url 'marketplace' %}" style="color: white;">Marketplace</a>
         <a href="{% url 'user_list' %}" style="color: white;">Other Users</a>
@@ -36,9 +35,18 @@
       </div>
 
       <!-- Right: User Info -->
-      <div style="display: flex; gap: 16px; align-items: center; margin-left: auto;">
-        <span>👋 <strong>{{ user.username }}</strong></span>
-        <span style="background-color: #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: bold;">${{ user.userprofile.balance }}</span>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <a href="{% url 'update_profile' %}" style="display: flex; align-items: center; text-decoration: none; color: white;">
+          {% if user.userprofile.profile_pic %}
+            <img src="{{ user.userprofile.profile_pic.url }}" alt="Profile Pic" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
+          {% else %}
+            <img src="https://www.gravatar.com/avatar/?d=mp" alt="Default" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; margin-right: 8px;">
+          {% endif %}
+          <strong>{{ user.userprofile.display_name|default:user.username }}</strong>
+        </a>
+        <span style="background-color: #2ecc71; padding: 4px 12px; border-radius: 20px; font-weight: bold;">
+          ${{ user.userprofile.balance }}
+        </span>
         <a href="{% url 'logout' %}" style="color: white;">Logout</a>
       </div>
 
@@ -50,14 +58,13 @@
         <a href="{% url 'about' %}" style="color: white;">About</a>
       </div>
     {% endif %}
-
   </nav>
 
-  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
-
-  {% block content %}
-  {% endblock %}
-</div>
+  <div style="max-width: 1200px; margin: auto;">
+    <hr style="margin: 20px 0; border: none; border-top: 1px solid #ccc;">
+    {% block content %}
+    {% endblock %}
+  </div>
 </body>
 </html>
 

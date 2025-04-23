@@ -9,12 +9,27 @@ from django.contrib.auth.decorators import login_required
 from .forms import CustomUserCreationForm
 from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement
 import random, requests
+from .forms import ProfileUpdateForm
 
 def homepage(request):
     return render(request, 'home.html')
 
 def about(request):
     return render(request, 'about.html')
+
+@login_required
+def update_profile(request):
+    profile = request.user.userprofile
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated!')
+            return redirect('update_profile')
+    else:
+        form = ProfileUpdateForm(instance=profile)
+    
+    return render(request, 'update_profile.html', {'form': form})
 
 def card_details(request, card_id):
     card = get_object_or_404(PokemonCard, id=card_id)
@@ -196,16 +211,17 @@ def marketplace(request):
 @login_required
 def buy_card(request, listing_id):
     listing = get_object_or_404(Listing, id=listing_id)
-    
+
     if listing.seller == request.user or listing.is_sold:
         return redirect('marketplace')
-        
+
     buyer = request.user
     buyer_profile = UserProfile.objects.get(user=buyer)
 
     if buyer_profile.balance < listing.price:
-        return HttpResponse("❌ Insufficient funds to complete purchase.", status=403)
-    
+        messages.error(request, "❌ You don’t have enough funds to buy this card.")
+        return redirect('marketplace')
+
     # 💰 Deduct money from buyer
     buyer_profile.balance -= listing.price
     buyer_profile.save()

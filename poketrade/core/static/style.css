@@ -19,6 +19,10 @@ small.error {
     margin-top: 2px;
 }
 
+input[name="display_name"] {
+  width: 300px;
+}
+
 .container {
     max-width: 1000px;
     margin: auto;

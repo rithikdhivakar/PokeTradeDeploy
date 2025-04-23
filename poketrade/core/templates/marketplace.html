@@ -1,6 +1,13 @@
 {% extends 'base.html' %}
 {% block content %}
   <h2>Marketplace</h2>
+  {% if messages %}
+    {% for message in messages %}
+      <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 20px;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
 
   <form method="get" style="margin-bottom: 20px;">
     <label for="type">Type:</label>
