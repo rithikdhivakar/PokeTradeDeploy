@@ -1,24 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Propose a Trade with {{ other_user.username }}</h2>
+<h2>Propose a Trade with {{ other_user.userprofile.display_name|default:other_user.username }}</h2>
 
 <form method="post">
     {% csrf_token %}
-
-    <label for="offered_card">Select a card to offer:</label><br>
-    <select name="offered_card" required>
-        {% for item in my_cards %}
-            <option value="{{ item.card.id }}">{{ item.card.name }} (Count: {{ item.count }})</option>
-        {% endfor %}
-    </select><br><br>
-
-    <label for="requested_card">Select a card to request:</label><br>
-    <select name="requested_card" required>
-        {% for item in their_cards %}
-            <option value="{{ item.card.id }}">{{ item.card.name }} (Count: {{ item.count }})</option>
-        {% endfor %}
-    </select><br><br>
-
+    {{ form.as_p }}
     <button type="submit">Send Trade Request</button>
 </form>
 {% endblock %}

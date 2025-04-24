@@ -6,10 +6,19 @@
   <ul>
     {% for trade in incoming_requests %}
       <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-        <strong>From:</strong> {{ trade.from_user.username }}<br>
-        <strong>Wants to trade:</strong> 🃏 <strong>{{ trade.offered_card.name }}</strong><br>
-        <strong>For your card:</strong> {{ trade.requested_card.name }}<br>
-        <strong>Status:</strong> 
+        <strong>From:</strong> {{ trade.from_user.userprofile.display_name|default:trade.from_user.username }}<br>
+
+        <strong>Wants to trade:</strong><br>
+        {% for card in trade.offered_cards.all %}
+          🃏 {{ card.name }}<br>
+        {% endfor %}
+
+        <strong>For your card(s):</strong><br>
+        {% for card in trade.requested_cards.all %}
+          🃏 {{ card.name }}<br>
+        {% endfor %}
+
+        <strong>Status:</strong>
         {% if trade.status == 'pending' %}
           <span style="color: orange;">⏳ Pending</span>
         {% elif trade.status == 'accepted' %}
@@ -43,9 +52,18 @@
   <ul>
     {% for trade in outgoing_requests %}
       <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-        <strong>To:</strong> {{ trade.to_user.username }}<br>
-        <strong>You offered:</strong> {{ trade.offered_card.name }}<br>
-        <strong>For:</strong> {{ trade.requested_card.name }}<br>
+        <strong>To:</strong> {{ trade.to_user.userprofile.display_name|default:trade.to_user.username }}<br>
+
+        <strong>You offered:</strong><br>
+        {% for card in trade.offered_cards.all %}
+          🃏 {{ card.name }}<br>
+        {% endfor %}
+
+        <strong>For:</strong><br>
+        {% for card in trade.requested_cards.all %}
+          🃏 {{ card.name }}<br>
+        {% endfor %}
+
         <strong>Status:</strong>
         {% if trade.status == 'pending' %}
           <span style="color: orange;">⏳ Pending</span>

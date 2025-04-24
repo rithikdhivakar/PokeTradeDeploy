@@ -6,6 +6,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from .forms import TradeRequestForm
 from .forms import CustomUserCreationForm
 from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement
 import random, requests
@@ -259,125 +260,114 @@ def buy_card(request, listing_id):
     return redirect('marketplace')
 
 @login_required
+
 def send_trade_request(request, user_id):
     other_user = User.objects.get(id=user_id)
-    my_cards = UserCollection.objects.filter(user=request.user, count__gt=0)
-    their_cards = UserCollection.objects.filter(user=other_user, count__gt=0)
+    my_cards = UserCollection.objects.filter(user=request.user, count__gt=0).values_list('card', flat=True)
+    their_cards = UserCollection.objects.filter(user=other_user, count__gt=0).values_list('card', flat=True)
 
     if request.method == 'POST':
-        offered_card_id = request.POST.get('offered_card')
-        requested_card_id = request.POST.get('requested_card')
-        offered_card = PokemonCard.objects.get(id=offered_card_id)
-        requested_card = PokemonCard.objects.get(id=requested_card_id)
+        form = TradeRequestForm(request.POST)
+        form.fields['offered_cards'].queryset = PokemonCard.objects.filter(id__in=my_cards)
+        form.fields['requested_cards'].queryset = PokemonCard.objects.filter(id__in=their_cards)
 
-        TradeRequest.objects.create(
-            from_user=request.user,
-            to_user=other_user,
-            offered_card=offered_card,
-            requested_card=requested_card,
-        )
-        return redirect('user_collection', user_id=other_user.id)
+        if form.is_valid():
+            offered_cards = form.cleaned_data['offered_cards']
+            requested_cards = form.cleaned_data['requested_cards']
+
+            trade = TradeRequest.objects.create(
+                from_user=request.user,
+                to_user=other_user,
+            )
+
+            trade.offered_cards.set(offered_cards)
+            trade.requested_cards.set(requested_cards)
+
+            return redirect('trade_requests')
+    else:
+        form = TradeRequestForm()
+        form.fields['offered_cards'].queryset = PokemonCard.objects.filter(id__in=my_cards)
+        form.fields['requested_cards'].queryset = PokemonCard.objects.filter(id__in=their_cards)
 
     return render(request, 'send_trade.html', {
-        'other_user': other_user,
-        'my_cards': my_cards,
-        'their_cards': their_cards
+        'form': form,
+        'other_user': other_user
     })
 
 @login_required
 def trade_requests(request):
-    incoming = TradeRequest.objects.filter(to_user=request.user, status='pending')
-    outgoing = TradeRequest.objects.filter(from_user=request.user).exclude(status='accepted')
+    incoming = TradeRequest.objects.filter(to_user=request.user).prefetch_related('offered_cards', 'requested_cards')
+    outgoing = TradeRequest.objects.filter(from_user=request.user).prefetch_related('offered_cards', 'requested_cards')
 
     return render(request, 'trade_requests.html', {
         'incoming_requests': incoming,
         'outgoing_requests': outgoing
     })
 
-
+@login_required
 @login_required
 def accept_trade(request, trade_id):
-    trade = TradeRequest.objects.get(id=trade_id)
+    trade = get_object_or_404(TradeRequest, id=trade_id)
 
     if trade.to_user != request.user or trade.status != 'pending':
         return redirect('trade_requests')
 
-    # Remove offered card from sender
-    try:
-        sender_card = UserCollection.objects.get(user=trade.from_user, card=trade.offered_card)
-        if sender_card.count > 0:
-            sender_card.count -= 1
-            sender_card.save()
-        else:
-            messages.error(request, "Sender doesn't have the offered card anymore.")
+    # Step 1: Transfer offered cards from sender to receiver
+    for card in trade.offered_cards.all():
+        try:
+            sender_card = UserCollection.objects.get(user=trade.from_user, card=card)
+            if sender_card.count > 0:
+                sender_card.count -= 1
+                sender_card.save()
+            else:
+                messages.error(request, "Sender doesn't have the offered card anymore.")
+                return redirect('trade_requests')
+        except UserCollection.DoesNotExist:
+            messages.error(request, "Sender doesn't have the offered card.")
             return redirect('trade_requests')
-    except UserCollection.DoesNotExist:
-        messages.error(request, "Sender doesn't have the offered card.")
-        return redirect('trade_requests')
 
-    # Remove requested card from receiver
-    try:
-        receiver_card = UserCollection.objects.get(user=trade.to_user, card=trade.requested_card)
-        if receiver_card.count > 0:
-            receiver_card.count -= 1
-            receiver_card.save()
-        else:
-            messages.error(request, "You don't have the requested card anymore.")
+        # Add to receiver
+        receiver_card, created = UserCollection.objects.get_or_create(user=trade.to_user, card=card)
+        receiver_card.count = 1 if created else receiver_card.count + 1
+        receiver_card.save()
+
+    # Step 2: Transfer requested cards from receiver to sender
+    for card in trade.requested_cards.all():
+        try:
+            receiver_card = UserCollection.objects.get(user=trade.to_user, card=card)
+            if receiver_card.count > 0:
+                receiver_card.count -= 1
+                receiver_card.save()
+            else:
+                messages.error(request, "You don't have the requested card anymore.")
+                return redirect('trade_requests')
+        except UserCollection.DoesNotExist:
+            messages.error(request, "You don't have the requested card.")
             return redirect('trade_requests')
-    except UserCollection.DoesNotExist:
-        messages.error(request, "You don't have the requested card.")
-        return redirect('trade_requests')
 
-    # ✅ Add received cards properly
+        # Add to sender
+        sender_card, created = UserCollection.objects.get_or_create(user=trade.from_user, card=card)
+        sender_card.count = 1 if created else sender_card.count + 1
+        sender_card.save()
 
-    receiver_new_card, receiver_created = UserCollection.objects.get_or_create(
-        user=trade.to_user, card=trade.offered_card
-    )
-    sender_new_card, sender_created = UserCollection.objects.get_or_create(
-        user=trade.from_user, card=trade.requested_card
-    )
-
-    receiver_new_card.count = 1 if receiver_created else receiver_new_card.count + 1
-    sender_new_card.count = 1 if sender_created else sender_new_card.count + 1
-
-    receiver_new_card.save()
-    sender_new_card.save()
-
-    # ✅ Mark trade accepted
+    # Step 3: Mark trade as accepted
     trade.status = 'accepted'
     trade.save()
 
+    # Step 4: Award achievements to both users
+    for user in [trade.from_user, trade.to_user]:
+        trade_count = TradeRequest.objects.filter(
+            Q(from_user=user) | Q(to_user=user),
+            status='accepted'
+        ).count()
 
-    # ✅ Award achievements to the initiating user
-    from_user = trade.from_user
+        earned = UserAchievement.objects.filter(user=user).values_list('achievement_id', flat=True)
+        eligible = Achievement.objects.filter(required_trades__lte=trade_count).exclude(id__in=earned)
 
-    from_user_trade_count = TradeRequest.objects.filter(
-        Q(from_user=from_user) | Q(to_user=from_user),
-        status='accepted'
-    ).count()
-
-    earned = UserAchievement.objects.filter(user=from_user).values_list('achievement_id', flat=True)
-    eligible = Achievement.objects.filter(required_trades__lte=from_user_trade_count).exclude(id__in=earned)
-
-    for achievement in eligible:
-        UserAchievement.objects.create(user=from_user, achievement=achievement)
-
-    # ✅ Also award achievements to the receiver (to_user)
-    to_user = trade.to_user
-
-    to_user_trade_count = TradeRequest.objects.filter(
-        Q(from_user=to_user) | Q(to_user=to_user),
-        status='accepted'
-    ).count()
-
-    earned_to_user = UserAchievement.objects.filter(user=to_user).values_list('achievement_id', flat=True)
-    eligible_to_user = Achievement.objects.filter(required_trades__lte=to_user_trade_count).exclude(id__in=earned_to_user)
-
-    for achievement in eligible_to_user:
-        UserAchievement.objects.create(user=to_user, achievement=achievement)
+        for achievement in eligible:
+            UserAchievement.objects.create(user=user, achievement=achievement)
 
     return redirect('trade_requests')
-
 
 @login_required
 def reject_trade(request, trade_id):

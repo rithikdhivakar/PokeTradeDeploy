@@ -11,6 +11,9 @@ class PokemonCard(models.Model):
     rarity = models.CharField(max_length=50)
     image_url = models.URLField(blank=True)
 
+    def __str__(self):
+        return f"{self.name} (HP: {self.hp}, Type: {self.type}, Rarity: {self.rarity})"
+
     class Meta:
         unique_together = ("name", "hp", "type")
 
@@ -44,8 +47,8 @@ class Badge(models.Model):
 class TradeRequest(models.Model):
     from_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_trades')
     to_user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_trades')
-    offered_card = models.ForeignKey(PokemonCard, on_delete=models.CASCADE, related_name='offered_in_trades')
-    requested_card = models.ForeignKey(PokemonCard, on_delete=models.CASCADE, related_name='requested_in_trades')
+    offered_cards = models.ManyToManyField(PokemonCard, related_name='offered_in_trades')
+    requested_cards = models.ManyToManyField(PokemonCard, related_name='requested_in_trades')
     status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')], default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 

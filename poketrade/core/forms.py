@@ -1,11 +1,32 @@
 from django import forms
-from .models import UserProfile
+from .models import UserProfile, TradeRequest, PokemonCard
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from django import forms
-from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+class TradeRequestForm(forms.ModelForm):
+    offered_cards = forms.ModelMultipleChoiceField(
+        queryset=PokemonCard.objects.none(),
+        widget=forms.SelectMultiple(attrs={'size': 6})
+    )
+    requested_cards = forms.ModelMultipleChoiceField(
+        queryset=PokemonCard.objects.none(),
+        widget=forms.SelectMultiple(attrs={'size': 6})
+    )
+
+    class Meta:
+        model = TradeRequest
+        fields = ['offered_cards', 'requested_cards']
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        to_user = kwargs.pop('to_user', None)
+        super().__init__(*args, **kwargs)
+
+        if user:
+            self.fields['offered_cards'].queryset = PokemonCard.objects.filter(usercollection__user=user)
+
+        if to_user:
+            self.fields['requested_cards'].queryset = PokemonCard.objects.filter(usercollection__user=to_user)
 
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
