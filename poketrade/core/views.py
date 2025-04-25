@@ -8,9 +8,211 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import TradeRequestForm
 from .forms import CustomUserCreationForm
-from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement
-import random, requests
+from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement, QuizQuestion
+import random
+import requests
 from .forms import ProfileUpdateForm
+
+
+@login_required
+def quiz_view(request):
+    if request.method == 'GET':
+        questions = random.sample(list(QuizQuestion.objects.all()), 5)
+        quiz_data = []
+
+        for question in questions:
+            while True:
+                pokemon_id = random.randint(1, 151)
+                pokemon_response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{pokemon_id}")
+                
+                if pokemon_response.status_code != 200:
+                    continue
+                
+                pokemon_data = pokemon_response.json()
+                pokemon_name = pokemon_data['name']
+
+                if ' ' not in pokemon_name:
+                    break
+
+            # Get correct answer based on question type
+            correct_answer = get_correct_answer(pokemon_data, question)
+
+            # Generate 3 wrong options
+            wrong_answers = generate_wrong_options(question.question_type, correct_answer)
+
+            # Mix correct and wrong answers
+            options = wrong_answers + [correct_answer]
+            random.shuffle(options)
+
+            quiz_data.append({
+                'question_id': question.id,
+                'question_text': question.question_text.replace('________', pokemon_name.capitalize()),
+                'pokemon_name': pokemon_name.capitalize(),
+                'question_type': question.question_type,
+                'correct_property': question.correct_property,
+                'pokemon_data': pokemon_data,
+                'options': options,
+                'correct_answer': correct_answer  # For checking later
+            })
+
+        context = {
+            'quiz_data': quiz_data
+        }
+        return render(request, 'quiz.html', context)
+
+    elif request.method == 'POST':
+        score = 0
+        total = int(request.POST.get('total_questions', 5))  # optional safety
+
+        # Read the first Pokemon name from form (we'll submit it hidden)
+        pokemon_name = request.POST.get('pokemon_name')
+
+        for key, value in request.POST.items():
+            if key.startswith('q'):
+                question_id = key[1:]  # remove 'q' prefix
+                selected_answer = value
+                correct_answer = request.POST.get(f'correct_q{question_id}')
+
+                if selected_answer == correct_answer:
+                    score += 1
+
+        if score == total:
+            user = request.user
+
+            # Try to find the card first
+            card = PokemonCard.objects.filter(name__iexact=pokemon_name).first()
+
+            if not card:
+                # If not found, fetch from PokémonTCG API
+                tcg_url = "https://api.pokemontcg.io/v2/cards"
+                params = {"q": f'name:"{pokemon_name}"'}
+                response = requests.get(tcg_url, params=params)
+                
+                if response.status_code == 200:
+                    data = response.json()
+                    cards = data.get("data", [])
+
+                    if cards:
+                        # Pick first matching card
+                        card_data = cards[0]
+
+                        name = card_data.get("name", "Unknown")
+                        hp = int(card_data.get("hp", "0")) if card_data.get("hp", "0").isdigit() else 0
+                        types = card_data.get("types", [])
+                        type_ = types[0] if types else "Unknown"
+                        rarity = card_data.get("rarity", "Common")
+                        image_url = card_data.get("images", {}).get("small", "")
+
+                        # Create the card in DB
+                        card = PokemonCard.objects.create(
+                            name=name,
+                            hp=hp,
+                            type=type_,
+                            rarity=rarity,
+                            image_url=image_url
+                        )
+                    else:
+                        # No matching card found
+                        message = f"❌ Pokémon Card '{pokemon_name}' not found in external database."
+                        success = False
+                        return render(request, 'quiz_result.html', {'message': message, 'success': success})
+                else:
+                    message = f"❌ Could not connect to external database to fetch '{pokemon_name}'."
+                    success = False
+                    return render(request, 'quiz_result.html', {'message': message, 'success': success})
+
+            # Now assign the card to the user
+            user_card, created = UserCollection.objects.get_or_create(user=user, card=card)
+            if not created:
+                user_card.count += 1
+            user_card.save()
+
+            message = f"🎉 Congratulations! You have earned a new {pokemon_name.capitalize()} card!"
+            success = True
+
+        else:
+            message = "❌ One or more answers are wrong. Please try again."
+            success = False
+
+        return render(request, 'quiz_result.html', {'message': message, 'success': success})
+
+def get_correct_answer(pokemon_data, question):
+    """Fetch the correct answer based on question type"""
+    if question.question_type == 'element_type':
+        return pokemon_data['types'][0]['type']['name'].capitalize()
+
+    elif question.question_type == 'base_hp':
+        for stat in pokemon_data['stats']:
+            if stat['stat']['name'] == 'hp':
+                return str(stat['base_stat'])
+
+    elif question.question_type == 'ability':
+        return pokemon_data['abilities'][0]['ability']['name'].capitalize()
+
+    elif question.question_type == 'generation':
+        species_url = pokemon_data['species']['url']
+        species_response = requests.get(species_url)
+        if species_response.status_code == 200:
+            species_data = species_response.json()
+            return species_data['generation']['name'].replace('-', ' ').capitalize()
+        else:
+            return "Unknown"
+
+    elif question.question_type == 'region':
+        species_url = pokemon_data['species']['url']
+        species_response = requests.get(species_url)
+        if species_response.status_code == 200:
+            species_data = species_response.json()
+            habitat = species_data.get('habitat')
+            if habitat:
+                return habitat['name'].capitalize()
+            else:
+                return "Unknown"
+        else:
+            return "Unknown"
+
+    elif question.question_type == 'evolution_stage':
+        # For now, simple assumption: Basic
+        return "Basic"
+
+    return "Unknown"
+
+
+def generate_wrong_options(question_type, correct_answer):
+    """Generate 3 random wrong options"""
+    wrong_options = set()
+
+    if question_type == 'element_type':
+        all_types = ['Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Rock', 'Ghost', 'Ground', 'Flying', 'Bug', 'Dark', 'Steel', 'Fairy', 'Dragon', 'Fighting', 'Poison', 'Ice', 'Normal']
+        all_types.remove(correct_answer) if correct_answer in all_types else None
+        wrong_options = random.sample(all_types, 3)
+
+    elif question_type == 'base_hp':
+        wrong_options = [str(int(correct_answer) + 10), str(int(correct_answer) - 5), str(int(correct_answer) + 15)]
+
+    elif question_type == 'ability':
+        all_abilities = ['Overgrow', 'Blaze', 'Torrent', 'Pressure', 'Run Away', 'Swift Swim', 'Intimidate', 'Levitate']
+        if correct_answer in all_abilities:
+            all_abilities.remove(correct_answer)
+        wrong_options = random.sample(all_abilities, 3)
+
+    elif question_type == 'generation':
+        all_generations = ['Generation i', 'Generation ii', 'Generation iii', 'Generation iv', 'Generation v', 'Generation vi', 'Generation vii', 'Generation viii']
+        if correct_answer in all_generations:
+            all_generations.remove(correct_answer)
+        wrong_options = random.sample(all_generations, 3)
+
+    elif question_type == 'region':
+        all_regions = ['Kanto', 'Johto', 'Hoenn', 'Sinnoh', 'Unova', 'Kalos', 'Alola', 'Galar']
+        if correct_answer in all_regions:
+            all_regions.remove(correct_answer)
+        wrong_options = random.sample(all_regions, 3)
+
+    elif question_type == 'evolution_stage':
+        wrong_options = ['Stage 1', 'Stage 2', 'Final']
+
+    return wrong_options
+
 
 def homepage(request):
     return render(request, 'home.html')
@@ -97,9 +299,6 @@ def home_redirect(request):
     return redirect('login')
 
 def assign_random_cards(user):
-    import requests
-    from .models import PokemonCard, UserCollection
-    import random
 
     url = "https://api.pokemontcg.io/v2/cards"
     params = {"pageSize": 50}  # More to choose from

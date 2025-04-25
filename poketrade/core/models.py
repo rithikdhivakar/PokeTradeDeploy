@@ -4,6 +4,27 @@ from django.dispatch import receiver
 from django.contrib.auth.models import User
 import random
 
+class QuizQuestion(models.Model):
+    QUESTION_TYPES = [
+        ('rarity', 'Rarity'),
+        ('element_type', 'Element Type'),
+        ('generation', 'Generation'),
+        ('evolution_stage', 'Evolution Stage'),
+        ('legendary_status', 'Legendary Status'),
+        ('ability', 'Ability'),
+        ('dex_id', 'Dex ID'),
+        ('region', 'Region'),
+        ('base_hp', 'Base HP'),
+        ('type_combination', 'Type Combination'),
+    ]
+
+    question_text = models.CharField(max_length=500)
+    question_type = models.CharField(max_length=50, choices=QUESTION_TYPES)
+    correct_property = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.question_text
+
 class PokemonCard(models.Model):
     name = models.CharField(max_length=100)
     hp = models.IntegerField()

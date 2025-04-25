@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <h1 class="my-4">Pokémon Quiz</h1>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% for item in quiz_data %}
+      <div class="mb-4">
+        <h5>Q{{ forloop.counter }}. {{ item.question_text }}</h5>
+        <div>
+          {% for option in item.options %}
+            {% if option == item.correct_answer %}
+              <label style="color: green;">
+                <input type="radio" name="q{{ item.question_id }}" value="{{ option }}" required> {{ option }}
+              </label><br>
+            {% else %}
+              <label>
+                <input type="radio" name="q{{ item.question_id }}" value="{{ option }}" required> {{ option }}
+              </label><br>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <!-- Hidden correct answer -->
+        <input type="hidden" name="correct_q{{ item.question_id }}" value="{{ item.correct_answer }}">
+      </div>
+    {% endfor %}
+
+    <!-- Optional total questions -->
+    <input type="hidden" name="total_questions" value="{{ quiz_data|length }}">
+    <input type="hidden" name="pokemon_name" value="{{ quiz_data.0.pokemon_name }}">
+
+    <button type="submit" class="btn btn-primary">Submit Quiz</button>
+  </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    form.addEventListener('change', function() {
+        submitButton.disabled = false;
+    });
+
+    // Initially disable button
+    submitButton.disabled = true;
+});
+</script>
+{% endblock %}

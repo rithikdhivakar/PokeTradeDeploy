@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container text-center my-5">
+    <h2 class="mb-4">{{ message }}</h2>
+
+    {% if success %}
+        <a href="{% url 'my_collection' %}" class="btn btn-success btn-lg mb-3">Go to My Collection</a><br>
+    {% endif %}
+
+    <a href="{% url 'quiz' %}" class="btn btn-primary btn-lg">Try Another Quiz</a>
+</div>
+{% endblock %}
+

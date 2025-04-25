@@ -16,6 +16,7 @@ urlpatterns = [
     # path('', views.home_redirect),  # default homepage
     path('', views.homepage, name='home'),
     path('about/', views.about, name='about'),
+    path('quiz/', views.quiz_view, name='quiz'),
     path('sell/<int:card_id>/', views.list_for_sale, name='list_for_sale'),
     path('card/<int:card_id>/details/', views.card_details, name='card_details'),
     path('buy/<int:listing_id>/', views.buy_card, name='buy_card'),
