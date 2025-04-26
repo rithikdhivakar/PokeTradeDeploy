@@ -1,4 +1,4 @@
-#!/Users/akshayhunka/BhaarathProject3/GTPokeTrade/poketrade/venv/bin/python3
+#!/Users/bhaarathsingh/test2/GTPokeTrade/poketrade/venv/bin/python3.13
 # -*- coding: utf-8 -*-
 import re
 import sys
