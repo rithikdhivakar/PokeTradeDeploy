@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /Users/bhaarathsingh/test2/GTPokeTrade/poketrade/venv
+set -gx VIRTUAL_ENV /Users/bhaarathsingh/PycharmProjects/Test5/poketrade/venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

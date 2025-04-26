@@ -13,7 +13,7 @@
         <div>
           {% for option in item.options %}
             {% if option == item.correct_answer %}
-              <label style="color: green;">
+              <label">
                 <input type="radio" name="q{{ item.question_id }}" value="{{ option }}" required> {{ option }}
               </label><br>
             {% else %}
