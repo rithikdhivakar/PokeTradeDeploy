@@ -1,21 +1,123 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container other-container">
-<h2>List {{ card.name }} for Sale</h2>
 
-<p>You currently own {{ remaining|add:listed_count }} of this card.</p>
-<p>You have <strong>{{ remaining }}</strong> unlisted cards available.</p>
 
-{% if remaining <= 0 %}
-    <p style="color: red;">❌ You’ve already listed all your cards of this type.</p>
-{% else %}
-    <form method="post">
-        {% csrf_token %}
-        <label for="price">Set your price ($):</label>
-        <input type="number" name="price" required min="1" max="999">
-        <button type="submit">List for Sale</button>
-    </form>
-{% endif %}
+<!-- Center Container -->
+<div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 92vh; padding-top: 30px; padding-bottom: 30px; text-align: center;">
+
+
+ <!-- Pokémon Image -->
+ <div class="mb-4">
+   <img src="{{ card.image_url }}" alt="{{ card.name }}" class="img-fluid" style="max-height: 180px; transition: transform 0.3s ease;">
+ </div>
+
+
+ <!-- Title -->
+ <h1 class="mb-4" style="
+   font-family: 'Luckiest Guy', cursive;
+   font-size: 2.8rem;
+   background: linear-gradient(to right, #4facfe, #00f2fe);
+   -webkit-background-clip: text;
+   color: transparent;
+   letter-spacing: 1px;
+ ">
+   List {{ card.name }} for Sale
+ </h1>
+
+
+ <!-- Card Count Info -->
+ <p class="lead mb-2" style="font-family: 'Fredoka', sans-serif; font-size: 1.2rem;">
+   You currently own <strong>{{ remaining }}</strong> of this card.
+ </p>
+ <p class="lead mb-4" style="font-family: 'Fredoka', sans-serif; font-size: 1.2rem;">
+   You have <strong>{{ remaining }}</strong> unlisted card available.
+ </p>
+
+
+ <!-- Sell Form -->
+ <form method="post" style="max-width: 400px; width: 100%;">
+   {% csrf_token %}
+   <div class="input-group mb-3">
+     <span class="input-group-text" style="
+       background: linear-gradient(to right, #00c6ff, #0072ff);
+       color: white;
+       font-weight: bold;
+     ">$</span>
+     <input type="number" class="form-control" name="price" placeholder="Enter price" required>
+   </div>
+
+
+   <button type="submit" class="sell-btn">
+     List for Sale
+   </button>
+ </form>
+
+
+ <!-- Back to Collection Button -->
+ <div class="mt-4">
+   <a href="{% url 'my_collection' %}" class="back-btn">
+     ⬅️ Back to Collection
+   </a>
+ </div>
+
+
 </div>
-{% endblock %}
 
+
+<!-- Styles -->
+<style>
+ /* Image Hover */
+ img:hover {
+   transform: scale(1.08) rotate(2deg);
+ }
+
+
+ /* Sell Button */
+ .sell-btn {
+   background: linear-gradient(to right, #4facfe, #00f2fe);
+   border: none;
+   color: white;
+   font-weight: bold;
+   font-family: 'Fredoka', sans-serif;
+   width: 100%;
+   padding: 12px 20px;
+   font-size: 1.3rem;
+   border-radius: 50px;
+   margin-top: 10px;
+   transition: all 0.3s ease;
+ }
+
+
+ .sell-btn:hover {
+   background: linear-gradient(to right, #00f2fe, #4facfe);
+   transform: scale(1.05);
+   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+ }
+
+
+ /* Back Button Styling */
+ .back-btn {
+   display: inline-block;
+   font-family: 'Fredoka', sans-serif;
+   font-weight: bold;
+   color: #0072ff;
+   font-size: 1.1rem;
+   text-decoration: none;
+   background: linear-gradient(to right, #c2e9fb, #a1c4fd);
+   padding: 8px 20px;
+   border-radius: 50px;
+   transition: all 0.3s ease;
+ }
+
+
+ .back-btn:hover {
+   background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+   transform: scale(1.08);
+   text-decoration: none;
+   color: #0056b3;
+   box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+ }
+</style>
+
+
+{% endblock %}

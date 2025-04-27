@@ -342,9 +342,81 @@ def assign_random_cards(user):
 
 @login_required
 def my_collection(request):
-    cards = UserCollection.objects.filter(user=request.user, count__gt=0)
-    listed_cards = Listing.objects.filter(seller=request.user, is_sold=False).values_list('card', flat=True)
-    return render(request, 'collection.html', {'cards': cards, 'listed_cards': listed_cards})
+   cards = UserCollection.objects.filter(user=request.user, count__gt=0).select_related('card')
+   listed_cards = Listing.objects.filter(seller=request.user, is_sold=False).values_list('card', flat=True)
+
+
+   detailed_cards = []
+
+
+   for item in cards:
+       card = item.card
+       card_data = {
+           'id': card.id,
+           'name': card.name,
+           'hp': card.hp,
+           'type': card.type,
+           'rarity': card.rarity,
+           'image_url': card.image_url,
+           'count': item.count,
+           'listed': card.id in listed_cards,
+       }
+
+
+       # Fetch additional details from PokeAPI
+       poke_name = card.name.lower().replace(" ", "-")
+       poke_url = f"https://pokeapi.co/api/v2/pokemon/{poke_name}"
+       species_url = f"https://pokeapi.co/api/v2/pokemon-species/{poke_name}"
+
+
+       try:
+           poke_response = requests.get(poke_url)
+           species_response = requests.get(species_url)
+
+
+           if poke_response.status_code == 200:
+               poke_data = poke_response.json()
+               card_data.update({
+                   'base_experience': poke_data.get('base_experience', 'N/A'),
+                   'height': poke_data.get('height', 'N/A'),
+                   'weight': poke_data.get('weight', 'N/A'),
+                   'abilities': [a['ability']['name'] for a in poke_data.get('abilities', [])],
+               })
+           else:
+               card_data.update({
+                   'base_experience': 'N/A',
+                   'height': 'N/A',
+                   'weight': 'N/A',
+                   'abilities': [],
+               })
+
+
+           if species_response.status_code == 200:
+               species_data = species_response.json()
+               flavor_text_entries = species_data.get('flavor_text_entries', [])
+               english_flavor_text = next(
+                   (entry['flavor_text'] for entry in flavor_text_entries if entry['language']['name'] == 'en'),
+                   "No description available."
+               )
+               card_data['flavor_text'] = english_flavor_text
+           else:
+               card_data['flavor_text'] = "No description available."
+
+
+       except Exception as e:
+           card_data.update({
+               'base_experience': 'N/A',
+               'height': 'N/A',
+               'weight': 'N/A',
+               'abilities': [],
+               'flavor_text': "No description available."
+           })
+
+
+       detailed_cards.append(card_data)
+
+
+   return render(request, 'collection.html', {'cards': detailed_cards})
 
 @login_required
 def user_list(request):
