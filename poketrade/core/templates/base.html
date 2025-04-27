@@ -63,7 +63,7 @@
 
     {% else %}
       <!-- When not logged in -->
-      <div style="display: flex; gap: 24px; margin-left: auto;">
+      <div style="display: flex; gap: 24px; margin-left: auto;" class="navbar-items">
         <a href="{% url 'login' %}" style="color: white;">Login</a>
         <a href="{% url 'register' %}" style="color: white;">Register</a>
         <a href="{% url 'about' %}" style="color: white;">About</a>
