@@ -1,37 +1,155 @@
 {% extends 'base.html' %}
 {% block content %}
+
 <div class="container other-container">
-  <h2>My Collection</h2>
+  <h2 class="text-center mb-4">My Collection</h2>
 
   {% if cards %}
     <div class="card-grid">
       {% for item in cards %}
-        <div class="card">
-          <img src="{{ item.card.image_url }}" alt="{{ item.card.name }}" width="120"><br>
-          <strong>{{ item.card.name }}</strong>
-          HP: {{ item.card.hp }}<br>
-          Type: {{ item.card.type }}<br>
-          Rarity: {{ item.card.rarity }}<br>
-          Count: {{ item.count }}<br>
-          <br>
-          <!-- View Details button -->
-          <a href="{% url 'card_details' item.card.id %}">
-            <button>View Details</button>
-          </a>
+        <div class="card p-3 shadow" style="position: relative; overflow: hidden; border-radius: 20px;">
 
-          {% if item.card.id in listed_cards %}
+          <img src="{{ item.image_url }}" alt="{{ item.name }}" width="120" style="border-radius: 10px;"><br>
+
+          <strong>{{ item.name }}</strong><br>
+          HP: {{ item.hp }}<br>
+          Type: {{ item.type }}<br>
+          Rarity: {{ item.rarity }}<br>
+          Count: {{ item.count }}<br><br>
+
+          <!-- View Details button with Popup -->
+          <div class="view-details-wrapper">
+            <button class="btn view-btn">View Details</button>
+            <div class="details-popup shadow rounded">
+              <div class="details-content">
+                <h6 class="popup-title">{{ item.name }}</h6>
+                <ul style="padding-left: 18px; margin-bottom: 0;">
+                  <li><strong>Base Experience:</strong> {{ item.base_experience }}</li>
+                  <li><strong>Height:</strong> {{ item.height }}</li>
+                  <li><strong>Weight:</strong> {{ item.weight }}</li>
+                  <li><strong>Abilities:</strong> {{ item.abilities|join:", " }}</li>
+                  <li><strong>Description:</strong> {{ item.flavor_text }}</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          {% if item.listed %}
             <div style="color: orange; margin-top: 5px;">🟡 On Sale</div>
           {% else %}
-            <a href="{% url 'list_for_sale' item.card.id %}">
-              <button>Sell</button>
+            <a href="{% url 'list_for_sale' item.id %}">
+              <button class="btn sell-btn mt-2">Sell</button>
             </a>
           {% endif %}
+
         </div>
       {% endfor %}
     </div>
+
   {% else %}
-    <p>You don't have any cards yet!</p>
+    <p class="text-center">You don't have any cards yet!</p>
   {% endif %}
 </div>
-{% endblock %}
 
+<!-- Popup and Button Styling -->
+<style>
+  /* View Details Popup */
+  .view-details-wrapper {
+    position: relative;
+    display: inline-block;
+  }
+
+  .details-popup {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(255, 255, 255, 0.98);
+    padding: 15px 20px;
+    border-radius: 12px;
+    min-width: 250px;
+    max-width: 280px;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 10;
+    text-align: left;
+    font-size: 13px;
+    line-height: 1.4;
+    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+  }
+
+  .details-popup::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .details-popup::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.3);
+    border-radius: 3px;
+  }
+
+  .details-popup::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .view-details-wrapper:hover .details-popup {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .details-content {
+    padding-right: 5px;
+    word-wrap: break-word;
+  }
+
+  .popup-title {
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    margin-top: 5px;
+  }
+
+  /* View Details Button */
+  .view-btn {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 8px 20px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    margin-top: 5px;
+  }
+
+  .view-btn:hover {
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  /* New Sell Button (matching View Details) */
+  .sell-btn {
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    border: none;
+    color: white;
+    font-weight: bold;
+    padding: 8px 20px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .sell-btn:hover {
+    background: linear-gradient(to right, #4facfe, #00c6ff);
+    transform: scale(1.08);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+</style>
+
+{% endblock %}
