@@ -1,9 +1,148 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
-<div class="homepage-container">
-  <h1>Welcome to PokéTrade</h1>
-  <p>Collect. Trade. Win. Your journey as a card master starts here.</p>
-  
-</div>
-{% endblock %}
 
+<!-- Hero Section -->
+<div style="background: linear-gradient(to right, #fef9c3, #fde68a); padding: 4rem 2rem; border-radius: 40px; margin: 2rem auto; max-width: 1000px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);">
+  <div class="text-center">
+    <h1 class="fw-bold mb-3" style="font-family: 'Luckiest Guy', cursive; font-size: 4.5rem;">Catch, Collect, Trade!</h1>
+    <p class="lead mb-4" style="font-family: 'Fredoka', sans-serif; font-size: 1.6rem;">
+      Welcome to <strong>PokéTrade</strong> — the ultimate digital world for Pokémon card collectors!
+    </p>
+
+    <div class="my-4">
+      <img src="{% static 'img/pikachu.png' %}" alt="Cute Pokémon" class="img-fluid shadow pikachu-bounce"
+           style="max-height: 300px; border-radius: 50%; background: white; padding: 20px; box-shadow: 0px 8px 20px rgba(0,0,0,0.2);">
+    </div>
+
+    <a href="{% url 'marketplace' %}" class="btn btn-lg trading-button rounded-pill">
+      Start Trading
+    </a>
+  </div>
+</div>
+
+<!-- Extra Styles -->
+<style>
+  /* Trading Button Styling */
+  .trading-button {
+    background: linear-gradient(to right, #ff7b00, #ff3c00);
+    border: none;
+    color: white;
+    font-family: 'Fredoka', sans-serif;
+    font-size: 1.5rem;
+    padding: 14px 50px;
+    box-shadow: 0 8px 20px rgba(255, 60, 0, 0.4);
+    transition: all 0.3s ease;
+    border-radius: 50px;
+  }
+
+  .trading-button:hover {
+    background: linear-gradient(to right, #ff3c00, #ff7b00);
+    box-shadow: 0 12px 30px rgba(255, 87, 34, 0.6);
+    transform: scale(1.08);
+  }
+
+  /* Pikachu Bounce Animation */
+  @keyframes pikachuBounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  .pikachu-bounce {
+    animation: pikachuBounce 2s infinite ease-in-out;
+  }
+</style>
+
+
+
+<!-- Adventure Section with Full Styling -->
+
+<style>
+  /* Adventure Section Background */
+  .adventure-section {
+    background: linear-gradient(to bottom right, #fb923c, #f97316);
+    border-radius: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    padding: 3rem 2rem;
+    margin: 2rem 0;
+    text-align: center;
+  }
+
+  /* Adventure Title */
+  .adventure-section h2 {
+    font-family: 'Luckiest Guy', cursive;
+    font-size: 2.7rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+  }
+
+  /* Adventure Paragraph */
+  .adventure-section p {
+    font-size: 1.25rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 2rem;
+  }
+
+  /* Glass Effect Card */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 2rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    max-width: 700px;
+    margin: 0 auto 2rem;
+    overflow: hidden;
+    padding: 1.5rem;
+  }
+
+  /* Adventure Image */
+  .glass-card img {
+    width: 100%;
+    height: auto;
+    border-radius: 1.5rem;
+  }
+
+  /* Learn More Button */
+  .learn-more-btn {
+    background: linear-gradient(to right, #f87171, #ef4444);
+    border: none;
+    border-radius: 9999px;
+    padding: 0.75rem 2rem;
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: white;
+    transition: background 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .learn-more-btn:hover {
+    background: linear-gradient(to right, #ef4444, #dc2626);
+    transform: translateY(-3px);
+  }
+</style>
+
+<div class="adventure-section">
+  <h2>Your Adventure Awaits!</h2>
+
+  <p>
+    Discover the world of trades, collections, and battles.
+    Your next legendary journey begins today with PokéTrade!
+  </p>
+
+  <div class="glass-card">
+    <img src="{% static 'img/charizard.png' %}" alt="Charizard Adventure">
+  </div>
+
+  <a href="{% url 'about' %}" class="learn-more-btn">Learn More</a>
+</div>
+
+{% endblock content %}
