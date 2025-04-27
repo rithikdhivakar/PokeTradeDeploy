@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
 <h2>Propose a Trade with {{ other_user.userprofile.display_name|default:other_user.username }}</h2>
 
 <form method="post">
@@ -7,5 +8,6 @@
     {{ form.as_p }}
     <button type="submit">Send Trade Request</button>
 </form>
+</div>
 {% endblock %}
 

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
   <h2 style="margin-bottom: 10px;">Create an Account</h2>
   <form method="post">
     {% csrf_token %}
@@ -52,5 +53,6 @@
   </form>
 
   <p style="margin-top: 10px;">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+</div>
 {% endblock %}
 

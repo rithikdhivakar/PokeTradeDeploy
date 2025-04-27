@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
   <h2>{{ selected_user.userprofile.display_name|default:selected_user.username }}'s Collection</h2>
 
   {% if cards %}
@@ -23,5 +24,6 @@
   {% else %}
     <p>This user has no cards.</p>
   {% endif %}
+</div>
 {% endblock %}
 

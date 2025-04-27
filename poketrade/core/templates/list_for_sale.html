@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
 <h2>List {{ card.name }} for Sale</h2>
 
 <p>You currently own {{ remaining|add:listed_count }} of this card.</p>
@@ -15,5 +16,6 @@
         <button type="submit">List for Sale</button>
     </form>
 {% endif %}
+</div>
 {% endblock %}
 

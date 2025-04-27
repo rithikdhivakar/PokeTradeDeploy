@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
   <h2>My Collection</h2>
 
   {% if cards %}
@@ -7,12 +8,12 @@
       {% for item in cards %}
         <div class="card">
           <img src="{{ item.card.image_url }}" alt="{{ item.card.name }}" width="120"><br>
-          <strong>{{ item.card.name }}</strong><br>
+          <strong>{{ item.card.name }}</strong>
           HP: {{ item.card.hp }}<br>
           Type: {{ item.card.type }}<br>
           Rarity: {{ item.card.rarity }}<br>
           Count: {{ item.count }}<br>
-
+          <br>
           <!-- View Details button -->
           <a href="{% url 'card_details' item.card.id %}">
             <button>View Details</button>
@@ -21,7 +22,6 @@
           {% if item.card.id in listed_cards %}
             <div style="color: orange; margin-top: 5px;">🟡 On Sale</div>
           {% else %}
-            <br>
             <a href="{% url 'list_for_sale' item.card.id %}">
               <button>Sell</button>
             </a>
@@ -32,5 +32,6 @@
   {% else %}
     <p>You don't have any cards yet!</p>
   {% endif %}
+</div>
 {% endblock %}
 

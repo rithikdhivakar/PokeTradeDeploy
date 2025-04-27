@@ -1,148 +1,121 @@
 {% extends 'base.html' %}
 {% load static %}
+
 {% block content %}
-
 <!-- Hero Section -->
-<div style="background: linear-gradient(to right, #fef9c3, #fde68a); padding: 4rem 2rem; border-radius: 40px; margin: 2rem auto; max-width: 1000px; box-shadow: 0 8px 30px rgba(0,0,0,0.1);">
-  <div class="text-center">
-    <h1 class="fw-bold mb-3" style="font-family: 'Luckiest Guy', cursive; font-size: 4.5rem;">Catch, Collect, Trade!</h1>
-    <p class="lead mb-4" style="font-family: 'Fredoka', sans-serif; font-size: 1.6rem;">
-      Welcome to <strong>PokéTrade</strong> — the ultimate digital world for Pokémon card collectors!
-    </p>
-
-    <div class="my-4">
-      <img src="{% static 'img/pikachu.png' %}" alt="Cute Pokémon" class="img-fluid shadow pikachu-bounce"
-           style="max-height: 300px; border-radius: 50%; background: white; padding: 20px; box-shadow: 0px 8px 20px rgba(0,0,0,0.2);">
+<section class="hero-section py-5 bg-dark text-white" style="background: url('{% static 'img/new_background.jpg' %}') no-repeat center center; background-size: cover;">
+    <div class="container">
+        <div class="row min-vh-20 flex-column justify-content-end">
+            <div class="col-lg-6 ms-auto hero-content text-end">
+                <h1 class="display-4 fw-bold mb-4">Welcome to PokeTrade</h1>
+                <p class="lead mb-4">Your premier destination for trading Pokémon cards. Build your collection, connect with trainers worldwide, and discover rare cards!</p>
+                {% if not user.is_authenticated %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'register' %}" class="btn btn-light btn-lg px-4 me-md-2">Get Started</a>
+                        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-4">Login</a>
+                    </div>
+                {% else %}
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a href="{% url 'marketplace' %}" class="btn btn-light btn-lg px-4 me-md-2">Browse Marketplace</a>
+                        <a href="{% url 'user_list' %}" class="btn btn-outline-light btn-lg px-4">Start Trading</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
     </div>
+</section>
 
-    <a href="{% url 'marketplace' %}" class="btn btn-lg trading-button rounded-pill">
-      Start Trading
-    </a>
-  </div>
-</div>
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Why Choose PokeTrade?</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-exchange-alt fa-3x mb-3 text-primary"></i>
+                        <h3 class="h5">Easy Trading</h3>
+                        <p class="text-muted">Connect with trainers worldwide and trade your cards with our intuitive trading system.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-store fa-3x mb-3 text-primary"></i>
+                        <h3 class="h5">Marketplace</h3>
+                        <p class="text-muted">Buy and sell cards in our secure marketplace with competitive pricing.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center">
+                        <i class="fas fa-gift fa-3x mb-3 text-primary"></i>
+                        <h3 class="h5">Daily Rewards</h3>
+                        <p class="text-muted">Get a free card every day just for logging in and expand your collection!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-<!-- Extra Styles -->
-<style>
-  /* Trading Button Styling */
-  .trading-button {
-    background: linear-gradient(to right, #ff7b00, #ff3c00);
-    border: none;
-    color: white;
-    font-family: 'Fredoka', sans-serif;
-    font-size: 1.5rem;
-    padding: 14px 50px;
-    box-shadow: 0 8px 20px rgba(255, 60, 0, 0.4);
-    transition: all 0.3s ease;
-    border-radius: 50px;
-  }
+<!-- How It Works Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">How It Works</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <h3 class="mb-0">1</h3>
+                    </div>
+                    <h4>Create Account</h4>
+                    <p class="text-muted">Sign up and get your first free card</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <h3 class="mb-0">2</h3>
+                    </div>
+                    <h4>Build Collection</h4>
+                    <p class="text-muted">Collect cards through trading and daily rewards</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <h3 class="mb-0">3</h3>
+                    </div>
+                    <h4>Start Trading</h4>
+                    <p class="text-muted">Connect with other trainers and trade cards</p>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                        <h3 class="mb-0">4</h4>
+                    </div>
+                    <h4>Sell Cards</h4>
+                    <p class="text-muted">List your cards for sale in the marketplace</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
-  .trading-button:hover {
-    background: linear-gradient(to right, #ff3c00, #ff7b00);
-    box-shadow: 0 12px 30px rgba(255, 87, 34, 0.6);
-    transform: scale(1.08);
-  }
-
-  /* Pikachu Bounce Animation */
-  @keyframes pikachuBounce {
-    0%, 100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-15px);
-    }
-  }
-
-  .pikachu-bounce {
-    animation: pikachuBounce 2s infinite ease-in-out;
-  }
-</style>
-
-
-
-<!-- Adventure Section with Full Styling -->
-
-<style>
-  /* Adventure Section Background */
-  .adventure-section {
-    background: linear-gradient(to bottom right, #fb923c, #f97316);
-    border-radius: 2rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 3rem 2rem;
-    margin: 2rem 0;
-    text-align: center;
-  }
-
-  /* Adventure Title */
-  .adventure-section h2 {
-    font-family: 'Luckiest Guy', cursive;
-    font-size: 2.7rem;
-    margin-bottom: 1rem;
-    color: #1f2937;
-  }
-
-  /* Adventure Paragraph */
-  .adventure-section p {
-    font-size: 1.25rem;
-    font-weight: 500;
-    color: #1f2937;
-    margin-bottom: 2rem;
-  }
-
-  /* Glass Effect Card */
-  .glass-card {
-    background: rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 2rem;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    max-width: 700px;
-    margin: 0 auto 2rem;
-    overflow: hidden;
-    padding: 1.5rem;
-  }
-
-  /* Adventure Image */
-  .glass-card img {
-    width: 100%;
-    height: auto;
-    border-radius: 1.5rem;
-  }
-
-  /* Learn More Button */
-  .learn-more-btn {
-    background: linear-gradient(to right, #f87171, #ef4444);
-    border: none;
-    border-radius: 9999px;
-    padding: 0.75rem 2rem;
-    font-size: 1.1rem;
-    font-weight: bold;
-    color: white;
-    transition: background 0.3s ease, transform 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .learn-more-btn:hover {
-    background: linear-gradient(to right, #ef4444, #dc2626);
-    transform: translateY(-3px);
-  }
-</style>
-
-<div class="adventure-section">
-  <h2>Your Adventure Awaits!</h2>
-
-  <p>
-    Discover the world of trades, collections, and battles.
-    Your next legendary journey begins today with PokéTrade!
-  </p>
-
-  <div class="glass-card">
-    <img src="{% static 'img/charizard.png' %}" alt="Charizard Adventure">
-  </div>
-
-  <a href="{% url 'about' %}" class="learn-more-btn">Learn More</a>
-</div>
-
-{% endblock content %}
+<!-- Call to Action -->
+<section class="py-5 bg-dark text-white">
+    <div class="container text-center">
+        <h2 class="mb-4">Ready to Start Your Trading Journey?</h2>
+        <p class="lead mb-4">Join thousands of trainers in building their ultimate Pokémon card collection.</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-light btn-lg px-5">Sign Up Now</a>
+        {% else %}
+            <a href="{% url 'marketplace' %}" class="btn btn-light btn-lg px-5">Browse Cards</a>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

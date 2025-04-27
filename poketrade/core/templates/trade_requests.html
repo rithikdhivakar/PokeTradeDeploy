@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+<div class="container other-container">
 <h2>Incoming Trade Requests</h2>
 
 {% if incoming_requests %}
@@ -78,5 +79,6 @@
 {% else %}
   <p>No outgoing trade requests.</p>
 {% endif %}
+</div>
 {% endblock %}
 
