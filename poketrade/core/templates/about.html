@@ -1,15 +1,36 @@
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
-<div class="about-page">
-  <h2>About PokéTrade</h2>
-  <p>
-    PokéTrade is a fun, interactive card trading app built using Django and the Pokémon API.
-    You can collect cards, propose trades, earn achievements, and build your ultimate collection!
-  </p>
-  <h3>Tech Stack:</h3>
-  <ul>
-    <li>Python + Django</li>
-  </ul>
+<div class="container other-container py-5">
+  <h2 class="text-center mb-4" style="font-family: 'Fredoka', sans-serif;">
+    About PokéTrade
+  </h2>
+
+  <div class="row">
+    <div class="col-md-8">
+      <p>
+        PokéTrade is a fun, interactive card-trading app built with Django
+        and the PokéAPI. Collect cards, propose trades, earn achievements,
+        and build your ultimate collection!
+      </p>
+
+      <h4 class="mt-4">Key Features</h4>
+      <ul>
+        {% for feat in features %}
+          <li>{{ feat }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="col-md-4">
+      <h4>Tech Stack</h4>
+      <ul>
+        {% for tech in tech_stack %}
+          <li>{{ tech }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </div>
 {% endblock %}
-

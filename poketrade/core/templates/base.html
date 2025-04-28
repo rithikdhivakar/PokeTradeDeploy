@@ -43,6 +43,10 @@
         <a href="{% url 'trade_requests' %}" style="color: white;">Trade Requests</a>
         <a href="{% url 'quiz' %}" style="color: white;">Quiz</a>
         <a href="{% url 'my_achievements' %}" style="color: white;">Achievements</a>
+        <a href="{% url 'about' %}" class="navbar-item{% if request.path == '/about/' %} active{% endif %}" style="color: white;"
+>
+  About
+</a>
       </div>
 
       <!-- Right: User Info -->
