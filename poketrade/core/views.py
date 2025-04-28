@@ -440,7 +440,7 @@ def list_for_sale(request, card_id):
 def marketplace(request):
     listings = Listing.objects.exclude(seller=request.user).filter(is_sold=False)
 
-    # Filters
+    # Apply filters
     card_type = request.GET.get('type')
     min_hp = request.GET.get('min_hp')
     rarity = request.GET.get('rarity')
@@ -452,15 +452,63 @@ def marketplace(request):
     if rarity:
         listings = listings.filter(card__rarity__iexact=rarity)
 
-    # Get dynamic dropdown values from DB
+    # Get dropdown filter options
     all_types = PokemonCard.objects.values_list('type', flat=True).distinct()
     all_rarities = PokemonCard.objects.values_list('rarity', flat=True).distinct()
 
+    # Enrich listings with PokeAPI info
+    enriched_listings = []
+    for listing in listings:
+        card = listing.card
+        card_data = {
+            'listing_id': listing.id,
+            'name': card.name,
+            'hp': card.hp,
+            'type': card.type,
+            'rarity': card.rarity,
+            'image_url': card.image_url,
+            'price': listing.price,
+            'base_experience': 'N/A',
+            'height': 'N/A',
+            'weight': 'N/A',
+            'abilities': [],
+            'flavor_text': "No description available."
+        }
+
+        # Fetch from PokeAPI
+        try:
+            poke_name = card.name.lower().replace(" ", "-")
+            poke_response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{poke_name}")
+            species_response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{poke_name}")
+
+            if poke_response.status_code == 200:
+                poke_data = poke_response.json()
+                card_data['base_experience'] = poke_data.get('base_experience', 'N/A')
+                card_data['height'] = poke_data.get('height', 'N/A')
+                card_data['weight'] = poke_data.get('weight', 'N/A')
+                card_data['abilities'] = [a['ability']['name'] for a in poke_data.get('abilities', [])]
+
+            if species_response.status_code == 200:
+                species_data = species_response.json()
+                flavor_text_entries = species_data.get('flavor_text_entries', [])
+                english_flavor_text = next(
+                    (entry['flavor_text'] for entry in flavor_text_entries if entry['language']['name'] == 'en'),
+                    "No description available."
+                )
+                card_data['flavor_text'] = english_flavor_text
+
+        except Exception as e:
+            print(f"Error fetching PokeAPI for {card.name}: {str(e)}")
+
+        enriched_listings.append(card_data)
+
+    # Return enriched listings
     return render(request, 'marketplace.html', {
-        'listings': listings,
+        'listings': enriched_listings,
         'types': all_types,
         'rarities': all_rarities
     })
+
 
 @login_required
 def buy_card(request, listing_id):
