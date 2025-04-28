@@ -208,7 +208,22 @@ def homepage(request):
     return render(request, 'home.html')
 
 def about(request):
-    return render(request, 'about.html')
+    # pass in features & tech stack for the template
+    context = {
+        'features': [
+            'User authentication & profiles',
+            'Personal card collections',
+            'Global trading marketplace',
+            'Achievements & quizzes',
+        ],
+        'tech_stack': [
+            'Python 3.x & Django 4.x',
+            'Bootstrap 5',
+            'PokéAPI integration',
+            'SQLite (dev) / PostgreSQL (prod)',
+        ],
+    }
+    return render(request, 'about.html', context)
 
 @login_required
 def update_profile(request):
