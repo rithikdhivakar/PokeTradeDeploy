@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q    
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -8,11 +8,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import TradeRequestForm
 from .forms import CustomUserCreationForm
-from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement, \
-    QuizQuestion
+from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement, QuizQuestion
 import random
 import requests
 from .forms import ProfileUpdateForm
+
 
 from django.contrib import messages
 from django.db.models import Q
@@ -23,11 +23,9 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from .forms import TradeRequestForm, CustomUserCreationForm, ProfileUpdateForm
-from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement, \
-    QuizQuestion
+from .models import PokemonCard, UserCollection, Listing, TradeRequest, UserAchievement, UserProfile, Achievement, QuizQuestion
 import random
 import requests
-
 
 @login_required
 def quiz_view(request):
@@ -146,7 +144,6 @@ def quiz_view(request):
             'card_image_url': card_image_url
         })
 
-
 def get_correct_answer(pokemon_data, question):
     if question.question_type == 'element_type':
         return pokemon_data['types'][0]['type']['name'].capitalize()
@@ -173,13 +170,11 @@ def get_correct_answer(pokemon_data, question):
         return "Basic"
     return "Unknown"
 
-
 def generate_wrong_options(question_type, correct_answer):
     wrong_options = []
 
     if question_type == 'element_type':
-        all_types = ['Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Rock', 'Ghost', 'Ground', 'Flying', 'Bug',
-                     'Dark', 'Steel', 'Fairy', 'Dragon', 'Fighting', 'Poison', 'Ice', 'Normal']
+        all_types = ['Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Rock', 'Ghost', 'Ground', 'Flying', 'Bug', 'Dark', 'Steel', 'Fairy', 'Dragon', 'Fighting', 'Poison', 'Ice', 'Normal']
         if correct_answer in all_types:
             all_types.remove(correct_answer)
         wrong_options = random.sample(all_types, 3)
@@ -191,8 +186,7 @@ def generate_wrong_options(question_type, correct_answer):
             all_abilities.remove(correct_answer)
         wrong_options = random.sample(all_abilities, 3)
     elif question_type == 'generation':
-        all_generations = ['Generation i', 'Generation ii', 'Generation iii', 'Generation iv', 'Generation v',
-                           'Generation vi', 'Generation vii', 'Generation viii']
+        all_generations = ['Generation i', 'Generation ii', 'Generation iii', 'Generation iv', 'Generation v', 'Generation vi', 'Generation vii', 'Generation viii']
         if correct_answer in all_generations:
             all_generations.remove(correct_answer)
         wrong_options = random.sample(all_generations, 3)
@@ -206,17 +200,15 @@ def generate_wrong_options(question_type, correct_answer):
 
     return wrong_options
 
-
 # Your other views (home, marketplace, user_collection, etc) remain exactly as you posted.
+
 
 
 def homepage(request):
     return render(request, 'home.html')
 
-
 def about(request):
     return render(request, 'about.html')
-
 
 @login_required
 def update_profile(request):
@@ -229,9 +221,8 @@ def update_profile(request):
             return redirect('update_profile')
     else:
         form = ProfileUpdateForm(instance=profile)
-
+    
     return render(request, 'update_profile.html', {'form': form})
-
 
 def card_details(request, card_id):
     card = get_object_or_404(PokemonCard, id=card_id)
@@ -292,14 +283,13 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
 
-
 def home_redirect(request):
     if request.user.is_authenticated:
         return redirect('my_collection')
     return redirect('login')
 
-
 def assign_random_cards(user):
+
     url = "https://api.pokemontcg.io/v2/cards"
     params = {"pageSize": 50}  # More to choose from
     response = requests.get(url, params=params)
@@ -339,7 +329,6 @@ def assign_random_cards(user):
         count += 1
         if count >= 5:
             break
-
 
 @login_required
 def my_collection(request):
@@ -416,17 +405,15 @@ def user_list(request):
     users = User.objects.exclude(id=request.user.id).filter(is_staff=False)
     return render(request, 'user_list.html', {'users': users})
 
-
 @login_required
 def user_collection(request, user_id):
     selected_user = User.objects.get(id=user_id)
     cards = UserCollection.objects.filter(user=selected_user, count__gt=0).select_related('card')
-
+    
     return render(request, 'user_collection.html', {
         'cards': cards,
         'selected_user': selected_user
     })
-
 
 @login_required
 def list_for_sale(request, card_id):
@@ -449,12 +436,11 @@ def list_for_sale(request, card_id):
         'listed_count': listed_count
     })
 
-
 @login_required
 def marketplace(request):
     listings = Listing.objects.exclude(seller=request.user).filter(is_sold=False)
 
-    # Filters
+    # Apply filters
     card_type = request.GET.get('type')
     min_hp = request.GET.get('min_hp')
     rarity = request.GET.get('rarity')
@@ -466,12 +452,59 @@ def marketplace(request):
     if rarity:
         listings = listings.filter(card__rarity__iexact=rarity)
 
-    # Get dynamic dropdown values from DB
+    # Get dropdown filter options
     all_types = PokemonCard.objects.values_list('type', flat=True).distinct()
     all_rarities = PokemonCard.objects.values_list('rarity', flat=True).distinct()
 
+    # Enrich listings with PokeAPI info
+    enriched_listings = []
+    for listing in listings:
+        card = listing.card
+        card_data = {
+            'listing_id': listing.id,
+            'name': card.name,
+            'hp': card.hp,
+            'type': card.type,
+            'rarity': card.rarity,
+            'image_url': card.image_url,
+            'price': listing.price,
+            'base_experience': 'N/A',
+            'height': 'N/A',
+            'weight': 'N/A',
+            'abilities': [],
+            'flavor_text': "No description available."
+        }
+
+        # Fetch from PokeAPI
+        try:
+            poke_name = card.name.lower().replace(" ", "-")
+            poke_response = requests.get(f"https://pokeapi.co/api/v2/pokemon/{poke_name}")
+            species_response = requests.get(f"https://pokeapi.co/api/v2/pokemon-species/{poke_name}")
+
+            if poke_response.status_code == 200:
+                poke_data = poke_response.json()
+                card_data['base_experience'] = poke_data.get('base_experience', 'N/A')
+                card_data['height'] = poke_data.get('height', 'N/A')
+                card_data['weight'] = poke_data.get('weight', 'N/A')
+                card_data['abilities'] = [a['ability']['name'] for a in poke_data.get('abilities', [])]
+
+            if species_response.status_code == 200:
+                species_data = species_response.json()
+                flavor_text_entries = species_data.get('flavor_text_entries', [])
+                english_flavor_text = next(
+                    (entry['flavor_text'] for entry in flavor_text_entries if entry['language']['name'] == 'en'),
+                    "No description available."
+                )
+                card_data['flavor_text'] = english_flavor_text
+
+        except Exception as e:
+            print(f"Error fetching PokeAPI for {card.name}: {str(e)}")
+
+        enriched_listings.append(card_data)
+
+    # Return enriched listings
     return render(request, 'marketplace.html', {
-        'listings': listings,
+        'listings': enriched_listings,
         'types': all_types,
         'rarities': all_rarities
     })
@@ -494,7 +527,7 @@ def buy_card(request, listing_id):
     # 💰 Deduct money from buyer
     buyer_profile.balance -= listing.price
     buyer_profile.save()
-
+        
     # 💸 Credit money to seller
     seller_profile = UserProfile.objects.get(user=listing.seller)
     seller_profile.balance += listing.price
@@ -502,14 +535,14 @@ def buy_card(request, listing_id):
 
     # 🃏 Add card to buyer's collection
     user_card, created = UserCollection.objects.get_or_create(user=buyer, card=listing.card)
-
+    
     if created:
         user_card.count = 1  # New entry — set explicitly to 1
     else:
         user_card.count += 1  # Existing entry — increment count
 
     user_card.save()
-
+        
     # ❌ Remove 1 card from seller's collection
     try:
         seller_card = UserCollection.objects.get(user=listing.seller, card=listing.card)
@@ -527,8 +560,8 @@ def buy_card(request, listing_id):
 
     return redirect('marketplace')
 
-
 @login_required
+
 def send_trade_request(request, user_id):
     other_user = User.objects.get(id=user_id)
     my_cards = UserCollection.objects.filter(user=request.user, count__gt=0).values_list('card', flat=True)
@@ -562,7 +595,6 @@ def send_trade_request(request, user_id):
         'other_user': other_user
     })
 
-
 @login_required
 def trade_requests(request):
     incoming = TradeRequest.objects.filter(to_user=request.user).prefetch_related('offered_cards', 'requested_cards')
@@ -572,7 +604,6 @@ def trade_requests(request):
         'incoming_requests': incoming,
         'outgoing_requests': outgoing
     })
-
 
 @login_required
 @login_required
@@ -639,7 +670,6 @@ def accept_trade(request, trade_id):
 
     return redirect('trade_requests')
 
-
 @login_required
 def reject_trade(request, trade_id):
     trade = TradeRequest.objects.get(id=trade_id)
@@ -650,9 +680,7 @@ def reject_trade(request, trade_id):
 
     return redirect('trade_requests')
 
-
 from django.db.models import Q
-
 
 @login_required
 def my_achievements(request):
