@@ -17,10 +17,13 @@
       {% endfor %}
     </div>
     <div style="margin-top: 20px;">
-<a href="{% url 'send_trade' selected_user.id %}">
-        <button>Propose a Trade</button>
-      </a>
-    </div>
+  <a
+    href="{% url 'send_trade' selected_user.id %}"
+    class="btn btn-primary rounded-pill"
+  >
+    Propose a Trade
+  </a>
+</div>
   {% else %}
     <p>This user has no cards.</p>
   {% endif %}
