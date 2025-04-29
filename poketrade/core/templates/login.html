@@ -1,14 +1,47 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container other-container">
-  <h2 style="margin-bottom: 10px;">Login to PokéTrade</h2>
-  <form method="post">
+<div
+  class="d-flex justify-content-center align-items-center"
+  style="min-height: calc(100vh - 70px);"
+>
+  <div class="card shadow-sm p-4" style="width:100%; max-width:400px;">
+    <h2 class="text-center mb-4" style="font-family:'Fredoka',sans-serif;">
+      Login to PokéTrade
+    </h2>
+    <form method="post">
       {% csrf_token %}
-      {{ form.as_p }}
-      <button type="submit">Login</button>
-  </form>
-  <p style="margin-top: 10px;"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
-  <p>New user? <a href="{% url 'register' %}">Create an account</a></p>
+      <div class="mb-3">
+        <label for="id_username" class="form-label">Username</label>
+        <input
+          type="text"
+          name="username"
+          id="id_username"
+          class="form-control"
+          required
+          autofocus
+        >
+      </div>
+      <div class="mb-4">
+        <label for="id_password" class="form-label">Password</label>
+        <input
+          type="password"
+          name="password"
+          id="id_password"
+          class="form-control"
+          required
+        >
+      </div>
+      <button type="submit" class="btn btn-primary btn-lg rounded-pill w-100 mb-2">
+        Login
+      </button>
+    </form>
+    <div class="text-center">
+      <a href="{% url 'password_reset' %}">Forgot your password?</a>
+    </div>
+    <hr>
+    <div class="text-center">
+      New user? <a href="{% url 'register' %}">Create an account</a>
+    </div>
+  </div>
 </div>
 {% endblock %}
-
