@@ -1,84 +1,127 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container other-container">
-<h2>Incoming Trade Requests</h2>
+<div class="container my-5">
+  <h2 class="text-center mb-5" style="font-family: 'Fredoka', sans-serif; font-weight: bold;">
+    Incoming Trade Requests
+  </h2>
 
-{% if incoming_requests %}
-  <ul>
-    {% for trade in incoming_requests %}
-      <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-        <strong>From:</strong> {{ trade.from_user.userprofile.display_name|default:trade.from_user.username }}<br>
+  <div class="row gy-4 justify-content-center">
+    {% if incoming_requests %}
+      {% for trade in incoming_requests %}
+        <div class="col-md-5">
+          <div class="p-4 rounded-4 shadow" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid #eee;">
+            <p><strong>From:</strong> {{ trade.from_user.userprofile.display_name|default:trade.from_user.username }}</p>
 
-        <strong>Wants to trade:</strong><br>
-        {% for card in trade.offered_cards.all %}
-          🃏 {{ card.name }}<br>
-        {% endfor %}
+            <div class="d-flex justify-content-between">
+              <div>
+                <p><strong>Wants to trade:</strong></p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                  {% for card in trade.offered_cards.all %}
+                    <li class="d-flex align-items-center gap-2 mb-1">
+                      <img src="{{ card.image_url }}" alt="{{ card.name }}" style="height: 40px; width: 40px; border-radius: 8px; object-fit: contain;">
+                      <span>{{ card.name }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
 
-        <strong>For your card(s):</strong><br>
-        {% for card in trade.requested_cards.all %}
-          🃏 {{ card.name }}<br>
-        {% endfor %}
+              <div>
+                <p><strong>For your cards:</strong></p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                  {% for card in trade.requested_cards.all %}
+                    <li class="d-flex align-items-center gap-2 mb-1">
+                      <img src="{{ card.image_url }}" alt="{{ card.name }}" style="height: 40px; width: 40px; border-radius: 8px; object-fit: contain;">
+                      <span>{{ card.name }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
 
-        <strong>Status:</strong>
-        {% if trade.status == 'pending' %}
-          <span style="color: orange;">⏳ Pending</span>
-        {% elif trade.status == 'accepted' %}
-          <span style="color: green;">✅ Accepted</span>
-        {% else %}
-          <span style="color: red;">❌ Rejected</span>
-        {% endif %}
-        <br>
-        {% if trade.status == 'pending' %}
-        <form method="post" action="{% url 'accept_trade' trade.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit">Accept</button>
-        </form>
-        <form method="post" action="{% url 'reject_trade' trade.id %}" style="display:inline;">
-          {% csrf_token %}
-          <button type="submit" style="background-color:#dc3545;">Reject</button>
-        </form>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>No incoming trade requests.</p>
-{% endif %}
+            <p class="mt-3"><strong>Status:</strong>
+              {% if trade.status == 'pending' %}
+                <span class="badge bg-warning text-dark">⏳ Pending</span>
+              {% elif trade.status == 'accepted' %}
+                <span class="badge bg-success">✅ Accepted</span>
+              {% else %}
+                <span class="badge bg-danger">❌ Rejected</span>
+              {% endif %}
+            </p>
 
-<hr>
+            {% if trade.status == 'pending' %}
+              <div class="d-flex gap-2 mt-3">
+                <form method="post" action="{% url 'accept_trade' trade.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                </form>
+                <form method="post" action="{% url 'reject_trade' trade.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center">No incoming trade requests.</p>
+    {% endif %}
+  </div>
 
-<h2>Outgoing Trade Requests</h2>
+  <hr class="my-5">
 
-{% if outgoing_requests %}
-  <ul>
-    {% for trade in outgoing_requests %}
-      <li style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
-        <strong>To:</strong> {{ trade.to_user.userprofile.display_name|default:trade.to_user.username }}<br>
+  <h2 class="text-center mb-5" style="font-family: 'Fredoka', sans-serif; font-weight: bold;">
+    Outgoing Trade Requests
+  </h2>
 
-        <strong>You offered:</strong><br>
-        {% for card in trade.offered_cards.all %}
-          🃏 {{ card.name }}<br>
-        {% endfor %}
+  <div class="row gy-4 justify-content-center">
+    {% if outgoing_requests %}
+      {% for trade in outgoing_requests %}
+        <div class="col-md-5">
+          <div class="p-4 rounded-4 shadow" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid #eee;">
+            <p><strong>To:</strong> {{ trade.to_user.userprofile.display_name|default:trade.to_user.username }}</p>
 
-        <strong>For:</strong><br>
-        {% for card in trade.requested_cards.all %}
-          🃏 {{ card.name }}<br>
-        {% endfor %}
+            <div class="d-flex justify-content-between">
+              <div>
+                <p><strong>You offered:</strong></p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                  {% for card in trade.offered_cards.all %}
+                    <li class="d-flex align-items-center gap-2 mb-1">
+                      <img src="{{ card.image_url }}" alt="{{ card.name }}" style="height: 40px; width: 40px; border-radius: 8px; object-fit: contain;">
+                      <span>{{ card.name }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
 
-        <strong>Status:</strong>
-        {% if trade.status == 'pending' %}
-          <span style="color: orange;">⏳ Pending</span>
-        {% elif trade.status == 'accepted' %}
-          <span style="color: green;">✅ Accepted</span>
-        {% else %}
-          <span style="color: red;">❌ Rejected</span>
-        {% endif %}
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>No outgoing trade requests.</p>
-{% endif %}
+              <div>
+                <p><strong>For:</strong></p>
+                <ul style="list-style-type: none; padding-left: 0;">
+                  {% for card in trade.requested_cards.all %}
+                    <li class="d-flex align-items-center gap-2 mb-1">
+                      <img src="{{ card.image_url }}" alt="{{ card.name }}" style="height: 40px; width: 40px; border-radius: 8px; object-fit: contain;">
+                      <span>{{ card.name }}</span>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </div>
+
+            <p class="mt-3"><strong>Status:</strong>
+              {% if trade.status == 'pending' %}
+                <span class="badge bg-warning text-dark">⏳ Pending</span>
+              {% elif trade.status == 'accepted' %}
+                <span class="badge bg-success">✅ Accepted</span>
+              {% else %}
+                <span class="badge bg-danger">❌ Rejected</span>
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-center">No outgoing trade requests.</p>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}
-

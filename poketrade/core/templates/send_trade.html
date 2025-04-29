@@ -1,13 +1,118 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container other-container">
-<h2>Propose a Trade with {{ other_user.userprofile.display_name|default:other_user.username }}</h2>
 
-<form method="post">
+<div class="container other-container my-5">
+  <h2 class="text-center mb-5" style="font-family: 'Fredoka', sans-serif; font-weight: bold;">
+    Propose a Trade with {{ other_user.userprofile.display_name|default:other_user.username }}
+  </h2>
+
+  <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Send Trade Request</button>
-</form>
-</div>
-{% endblock %}
+    <div class="row justify-content-center mb-5">
+      <!-- Offered Cards -->
+      <div class="col-md-6">
+        <h4 class="text-center mb-4" style="font-weight: bold; color: #4facfe;">Select Offered Cards</h4>
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+          {% for card in form.offered_cards.field.queryset %}
+            <label style="text-align: center; cursor: pointer;">
+              <input type="checkbox" name="offered_cards" value="{{ card.id }}" style="display: none;">
+              <img src="{{ card.image_url }}" class="img-fluid mb-2" style="max-height: 180px; border-radius: 10px; border: 2px solid transparent; transition: all 0.2s ease;">
+              <div><strong>{{ card.name }}</strong></div>
+              <div style="font-size: 0.9rem;">Type: {{ card.type }}</div>
+              <div style="font-size: 0.9rem;">HP: {{ card.hp }}</div>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
 
+      <!-- Requested Cards -->
+      <div class="col-md-6">
+        <h4 class="text-center mb-4" style="font-weight: bold; color: #ff9472;">Select Requested Cards</h4>
+        <div class="d-flex flex-wrap justify-content-center gap-4">
+          {% for card in form.requested_cards.field.queryset %}
+            <label style="text-align: center; cursor: pointer;">
+              <input type="checkbox" name="requested_cards" value="{{ card.id }}" style="display: none;">
+              <img src="{{ card.image_url }}" class="img-fluid mb-2" style="max-height: 180px; border-radius: 10px; border: 2px solid transparent; transition: all 0.2s ease;">
+              <div><strong>{{ card.name }}</strong></div>
+              <div style="font-size: 0.9rem;">Type: {{ card.type }}</div>
+              <div style="font-size: 0.9rem;">HP: {{ card.hp }}</div>
+            </label>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="text-center d-flex justify-content-center gap-3 mt-4">
+      <a href="{% url 'user_collection' other_user.id %}" class="btn gradient-btn px-4 py-2 rounded-pill">
+        ⬅ Back
+      </a>
+      <button type="submit" class="btn btn-lg px-5 py-2 trade-btn">
+        Send Trade Request
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- Styles -->
+<style>
+  .trade-btn {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    color: white;
+    font-weight: bold;
+    border: none;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+  }
+
+  .trade-btn:hover {
+    background: linear-gradient(to right, #00f2fe, #4facfe);
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .gradient-btn {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    color: white;
+    font-weight: bold;
+    border: none;
+    transition: all 0.3s ease;
+    text-decoration: none;
+  }
+
+  .gradient-btn:hover {
+    background: linear-gradient(to right, #3a9bdc, #00d4e0);
+    transform: scale(1.05);
+  }
+
+  label input[type="checkbox"]:checked + img {
+    border-color: #4facfe;
+    box-shadow: 0 0 12px rgba(79, 172, 254, 0.6);
+  }
+
+  label img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+  }
+
+  label {
+    max-width: 180px;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('label input[type="checkbox"]').forEach(input => {
+    input.addEventListener('change', function () {
+      const img = this.nextElementSibling;
+      if (this.checked) {
+        img.style.borderColor = '#4facfe';
+        img.style.boxShadow = '0 0 12px rgba(79, 172, 254, 0.6)';
+      } else {
+        img.style.borderColor = 'transparent';
+        img.style.boxShadow = 'none';
+      }
+    });
+  });
+</script>
+
+{% endblock %}

@@ -1,39 +1,53 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container other-container">
-<h2>Other PokéTrade Users</h2>
+  <h2 class="mb-4" style="font-family: 'Fredoka', sans-serif; font-weight: bold;">
+    Other PokéTrade Users
+  </h2>
 
-{% if users %}
-<div style="display: flex; flex-wrap: wrap; gap: 20px;">
-  {% for user in users %}
-    <div class="card" style="width: 200px; padding: 15px; text-align: center; border-radius: 8px; box-shadow: 2px 2px 8px #ddd;">
-      <a href="{% url 'user_collection' user.id %}" style="text-decoration: none; color: inherit;">
-        {% if user.userprofile.profile_pic %}
-          <img src="{{ user.userprofile.profile_pic.url }}" alt="{{ user.username }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 8px;">
-        {% else %}
-          <img src="https://www.gravatar.com/avatar/?d=mp" alt="Default" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 8px;">
-        {% endif %}
-        <h4>{{ user.userprofile.display_name|default:user.username }}</h4>
-      </a>
-    <form action="{% url 'user_collection' user.id %}" method="get">
-      <button type="submit">View Profile</button>
-    </form>
+  {% if users %}
+    <div class="d-flex flex-wrap justify-content-start gap-4">
+      {% for user in users %}
+        <div class="card text-center p-3" style="width: 200px; border-radius: 15px; box-shadow: 0px 4px 12px rgba(0,0,0,0.1); transition: transform 0.3s ease;">
+          <a href="{% url 'user_collection' user.id %}" style="text-decoration: none; color: inherit;">
+            {% if user.userprofile.profile_pic %}
+              <img src="{{ user.userprofile.profile_pic.url }}" alt="{{ user.username }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 12px;">
+            {% else %}
+              <img src="https://www.gravatar.com/avatar/?d=mp" alt="Default" style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%; margin-bottom: 12px;">
+            {% endif %}
+            <h5 class="mb-3" style="font-weight: bold;">{{ user.userprofile.display_name|default:user.username }}</h5>
+          </a>
+          <form action="{% url 'user_collection' user.id %}" method="get">
+            <button type="submit" class="btn w-100 gradient-btn">View Profile</button>
+          </form>
+        </div>
+      {% endfor %}
     </div>
-  {% endfor %}
+  {% else %}
+    <p>No other users found.</p>
+  {% endif %}
 </div>
-{% else %}
-  <p>No other users found.</p>
-{% endif %}
-</div>
-    <!-- Hover effects copied from Marketplace -->
+
+<!-- Reusable Styles -->
 <style>
   .card:hover {
     transform: scale(1.05);
-    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
   }
-  button:hover {
+
+  .gradient-btn {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 8px 0;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-btn:hover {
+    background: linear-gradient(to right, #3a9bdc, #00d4e0);
     transform: scale(1.05);
   }
 </style>
 {% endblock %}
-

@@ -35,15 +35,7 @@
     </div>
 
     <div>
-      <button type="submit" class="btn" style="
-        background: linear-gradient(to right, #4facfe, #00f2fe);
-        border: none;
-        padding: 8px 20px;
-        font-weight: bold;
-        border-radius: 50px;
-        color: white;
-        transition: all 0.3s ease;
-      ">
+      <button type="submit" class="btn gradient-btn">
         Filter
       </button>
     </div>
@@ -68,7 +60,7 @@
 
             <form method="post" action="{% url 'buy_card' listing.listing_id %}">
               {% csrf_token %}
-              <button type="submit" class="btn btn-success w-100 rounded-pill">
+              <button type="submit" class="btn w-100 rounded-pill gradient-btn">
                 Buy
               </button>
             </form>
@@ -98,7 +90,6 @@
             </div>
           </div>
         </div>
-
       {% endfor %}
     </div>
   {% else %}
@@ -106,15 +97,26 @@
   {% endif %}
 </div>
 
-<!-- Minor Hover Effects -->
+<!-- Custom Styles -->
 <style>
   .card:hover {
     transform: scale(1.05);
-    box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
   }
-  button:hover {
+
+  .gradient-btn {
+    background: linear-gradient(to right, #4facfe, #00f2fe);
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+  }
+
+  .gradient-btn:hover {
+    background: linear-gradient(to right, #3a9bdc, #00d4e0);
     transform: scale(1.05);
   }
 </style>
-
 {% endblock %}
