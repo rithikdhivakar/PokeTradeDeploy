@@ -1,67 +1,66 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="container mt-5">
-  <h2 class="text-center mb-4" style="font-family: 'Fredoka', sans-serif;">Propose a Trade with {{ other_user.userprofile.display_name|default:other_user.username }}</h2>
 
-  <form method="post">
-    {% csrf_token %}
-    <div class="row justify-content-center mb-5">
-      <!-- Offered Cards -->
-      <div class="col-md-6 mb-4">
-        <div class="card shadow p-3" style="border-left: 6px solid #4facfe; border-radius: 15px;">
-          <h4 class="text-center text-primary mb-3">🟦 Your Cards (Offered)</h4>
-          <div class="row justify-content-center">
-            {% for card in form.offered_cards.field.queryset %}
-              <div class="col-6 col-md-4 mb-4 text-center">
-                <label style="cursor: pointer;">
-                  <input type="checkbox" name="offered_cards" value="{{ card.id }}" style="display: none;">
-                  <img src="{{ card.image_url }}" class="img-fluid rounded shadow-sm" style="max-height: 150px;">
-                  <div class="mt-2"><strong>{{ card.name }}</strong><br>Type: {{ card.type }}<br>HP: {{ card.hp }}</div>
-                </label>
-              </div>
-            {% endfor %}
-          </div>
-        </div>
-      </div>
+<div class="container other-container py-5 position-relative">
 
-      <!-- Requested Cards -->
-      <div class="col-md-6 mb-4">
-        <div class="card shadow p-3" style="border-left: 6px solid #ff6a6a; border-radius: 15px;">
-          <h4 class="text-center text-danger mb-3">🟥 Their Cards (Requested)</h4>
-          <div class="row justify-content-center">
-            {% for card in form.requested_cards.field.queryset %}
-              <div class="col-6 col-md-4 mb-4 text-center">
-                <label style="cursor: pointer;">
-                  <input type="checkbox" name="requested_cards" value="{{ card.id }}" style="display: none;">
-                  <img src="{{ card.image_url }}" class="img-fluid rounded shadow-sm" style="max-height: 150px;">
-                  <div class="mt-2"><strong>{{ card.name }}</strong><br>Type: {{ card.type }}<br>HP: {{ card.hp }}</div>
-                </label>
-              </div>
-            {% endfor %}
-          </div>
+  {# —————— Alert with Icon —————— #}
+  <div
+    class="alert alert-{{ success|yesno:'success,danger' }} alert-dismissible fade show d-flex align-items-center justify-content-center"
+    role="alert"
+  >
+    {% if success %}
+      <i class="fas fa-trophy fa-2x me-2"></i>
+    {% else %}
+      <i class="fas fa-times-circle fa-2x me-2"></i>
+    {% endif %}
+    <span class="fs-4">{{ message }}</span>
+    <button type="button" class="btn-close ms-4" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+
+  {# —————— Success Layout —————— #}
+  {% if success %}
+    <div class="text-center mb-5">
+      <p class="lead">You scored <strong>{{ score }}</strong> out of <strong>{{ total }}</strong>!</p>
+    </div>
+    <div class="d-flex justify-content-center mb-5">
+    <div class="card shadow-sm mx-auto" style="max-width: 320px;">
+      <img src="{{ card_image_url }}"
+           class="card-img-top img-fluid"
+           alt="New Pokémon Card">
         </div>
       </div>
     </div>
-
-    <!-- Submit Button -->
     <div class="text-center">
-      <button type="submit" class="btn btn-lg px-5 py-2" style="
-        background: linear-gradient(to right, #4facfe, #00f2fe);
-        color: white;
-        font-weight: bold;
-        border: none;
-        border-radius: 30px;
-      ">Send Trade Request</button>
+      <a href="{% url 'my_collection' %}"
+         class="btn btn-primary btn-lg rounded-pill px-5">
+        View Your Collection
+      </a>
     </div>
-  </form>
+
+  {# —————— Failure Layout —————— #}
+  {% else %}
+    <div class="text-center mt-4">
+      <a href="{% url 'quiz' %}"
+         class="btn btn-secondary btn-lg rounded-pill px-4">
+        Try Again
+      </a>
+    </div>
+  {% endif %}
+
 </div>
 
-<!-- Selection Highlight -->
-<style>
-  input[type="checkbox"]:checked + img {
-    border: 3px solid #4facfe;
-    transform: scale(1.05);
-    transition: all 0.2s ease-in-out;
-  }
-</style>
+{# —————— Confetti Script on Success —————— #}
+{% if success %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    confetti({
+      particleCount: 150,
+      spread: 60,
+      origin: { y: 0.6 }
+    });
+  });
+</script>
+{% endif %}
+
 {% endblock %}
