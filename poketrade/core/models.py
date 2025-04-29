@@ -74,8 +74,9 @@ class TradeRequest(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.from_user} offers {self.offered_card} to {self.to_user} for {self.requested_card}"
-
+        offered = ", ".join(c.name for c in self.offered_cards.all())
+        requested = ", ".join(c.name for c in self.requested_cards.all())
+        return f"{self.from_user} offers [{offered}] to {self.to_user} for [{requested}]"
 
 class Achievement(models.Model):
     name = models.CharField(max_length=100)
