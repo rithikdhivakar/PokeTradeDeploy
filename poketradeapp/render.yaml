@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: poketrade
+    name: poketradeapp
     runtime: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn poketrade.wsgi
+    startCommand: gunicorn poketradeapp.wsgi
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: poketrade.settings
+        value: poketradeapp.settings
       - key: PYTHON_VERSION
         value: 3.9
 

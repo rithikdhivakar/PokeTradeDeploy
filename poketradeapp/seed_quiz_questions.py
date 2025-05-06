@@ -4,7 +4,7 @@ import os
 import django
 
 # Set up Django environment
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poketrade.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'poketradeapp.settings')
 django.setup()
 
 from core.models import QuizQuestion
