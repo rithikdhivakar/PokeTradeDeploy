@@ -68,7 +68,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'poketrade.wsgi.application'
+WSGI_APPLICATION = 'poketradeapp.wsgi.application'
 
 
 # Database
