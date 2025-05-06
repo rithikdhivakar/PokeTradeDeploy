@@ -1,26 +1,37 @@
-name: Build and Deploy to AKS
+name: Deploy to AKS
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
 
-      # 1. Checkout your code
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      # 2. Login to Azure
+      # 1️⃣ Authenticate to Azure using your SPN
       - name: Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 3. Point kubectl at your AKS cluster
+      # 2️⃣ Login to your ACR (no username/password needed!)
+      - name: ACR Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: gtpoketradeacr7131.azurecr.io
+
+      # 3️⃣ Build & push your Docker image
+      - name: Build and Push Image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            gtpoketradeacr7131.azurecr.io/poketradeapp:latest
+
+      # 4️⃣ Configure kubectl to talk to your AKS cluster
       - name: Set AKS context
         uses: azure/aks-set-context@v1
         with:
@@ -28,25 +39,6 @@ jobs:
           resource-group: gt-poketrade-rg
           cluster-name: gtpoketrade-aks
 
-      # 4. Login Docker to your ACR
-      - name: ACR Login
-        uses: azure/docker-login@v1
-        with:
-          login-server: gtpoketradeacr7131.azurecr.io
-
-      # 5. Build & push your image to ACR
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./Dockerfile
-          push: true
-          tags: |
-            gtpoketradeacr7131.azurecr.io/poketrade:latest
-
-      # 6. Update your AKS deployment to use the new image
+      # 5️⃣ Deploy your manifests
       - name: Deploy to AKS
-        run: |
-          kubectl set image deployment/poketrade-deployment \
-            poketrade=gtpoketradeacr7131.azurecr.io/poketrade:latest \
-            --record
+        run: kubectl apply -f k8s/deployment.yaml
