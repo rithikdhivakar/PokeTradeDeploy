@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: django
-        image: gtpoketradeacr7131.azurecr.io/PokeTradeDeploy:latest
+        image: gtpoketradeacr7131.azurecr.io/poketradedeploy:latest
         ports:
         - containerPort: 8000
         env:

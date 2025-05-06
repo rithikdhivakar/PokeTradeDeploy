@@ -21,7 +21,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/${{ github.repository }}:latest
+        tags: ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/poketradedeploy:latest
 
     - name: Set AKS context
       uses: azure/aks-set-context@v1
